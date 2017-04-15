@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <title>timeline</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="timeline"></div>
+    <script src="d3.js"></script>
+    <script src="ddtimelines.js"></script>
+    <script>
+      new DDTimelines({
+        size: [600, 400],
+        selector: '#timeline',
+        since: '2015-09-04T00:00:00+09:00',
+        until: '2015-09-06T00:00:00+09:00',
+        zoom: 1,
+        timelines: [
+          {
+            type: 'duration',
+            url: 'http://agora.ex.nii.ac.jp/timeline/v1/jmaxml-alert/durations.pl',
+            queries: {
+              acode: '040000',
+              ktype: 'wind,rain'
+            }
+          },
+          {
+            type: 'line',
+            url: 'http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points',
+            queries: {
+              id: '34216',
+              var: 'prec'
+            }
+          }
+        ]
+      });
+    </script>
