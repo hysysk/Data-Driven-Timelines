@@ -17,6 +17,8 @@ var DDTimelines = function(settings) {
   var backwardIndex = 1;
   var loadedIndexes = [];
 
+  var isFirstTimeLoad = false;
+
   // define the line
   var line = d3.line()
       .x(function(d) { return x(d.at); })
@@ -48,12 +50,14 @@ var DDTimelines = function(settings) {
   // containers
   var pointsContainer = svg.append("g")
       .append("path")
+      .attr('vector-effect', 'non-scaling-stroke')
       .attr("class", "points");
   var timelineContainer = svg.append("g")
       .attr("class", "timelines");
 
   // Add the X Axis
-  var axisX = d3.axisTop(x);
+  var axisX = d3.axisBottom(x)
+    .tickSize(height);
   var groupX = svg.append("g")
     .call(axisX);
 
@@ -62,16 +66,26 @@ var DDTimelines = function(settings) {
   var groupY = svg.append("g")
     .call(axisY);
 
+  var bisect = d3.bisector(function(d){return d.at;}).left;
+
   // Zoom controller
   var zoom = d3.zoom()
+      .scaleExtent([1, 12])
       .on("zoom", onZoom);
 
-  var zoomRect = svg.append("rect")
+  var backgroundRect = svg.append("rect")
     .attr("width", width)
     .attr("height", height)
     .attr("fill", "none")
     .attr("pointer-events", "all")
     .call(zoom);
+
+  backgroundRect.on('mousemove', onMouseMove);
+  backgroundRect.on('mouseout', onMouseOut);
+
+  // Active point
+  var activePoint = svg.append('circle')
+    .attr("r", 5);
 
   loadNewData(settings.since, settings.until);
 
@@ -155,8 +169,6 @@ var DDTimelines = function(settings) {
     groupY.call(axisY);
   }
 
-  var isFirstTimeLoad = false;
-
   function showTimelines() {
     timelines.forEach(function(tl, i) {
       var timelineBands = timeline(tl.duration);
@@ -195,12 +207,30 @@ var DDTimelines = function(settings) {
         d3.select("svg").append("g").append("text")
           .text(tl.label)
           .attr("y", height/2 + margin.bottom + (i+1)*32)
-          .attr("x", 0)
+          .attr("x", margin.left - 30)
           .attr("font-family", "sans-serif")
-          .attr("font-size", 12);
+          .attr("font-size", 12)
+          .attr("text-anchor", "right");
       }
     });
     isFirstTimeLoad = true;
+  }
+
+  function onMouseMove() {
+    var coords = d3.mouse(this);
+    var posX = x.invert(coords[0]);
+    var arrayIndex = bisect(points, posX, 0, points.length);
+    var smaller = points[arrayIndex-1];
+    var larger = points[arrayIndex];
+    if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
+      var match = posX - smaller.at < larger.at - posX ? smaller : larger;
+      activePoint.attr("cx", x(match.at))
+        .attr("cy", y(match.value));
+    }
+  }
+
+  function onMouseOut() {
+
   }
 
   function onZoom() {

@@ -20,6 +20,7 @@
     "d3-shape": "^1.0.6",
     "d3-time": "^1.0.6",
     "d3-time-format": "^2.0.4",
+    "d3-timeline": "git@github.com:hysysk/d3-timeline.git",
     "d3-zoom": "^1.1.2",
     "rollup": "^0.41.4",
     "rollup-plugin-node-resolve": "^2.0.0",

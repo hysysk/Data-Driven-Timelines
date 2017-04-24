@@ -1,7 +1,8 @@
 export {
   event,
   select,
-  selectAll
+  selectAll,
+  mouse
 } from "d3-selection";
 
 export {
@@ -27,7 +28,8 @@ export {
 export {
   min,
   max,
-  extent
+  extent,
+  bisector
 } from "d3-array"
 
 export {
