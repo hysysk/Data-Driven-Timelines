@@ -8,6 +8,7 @@ var DDTimelines = function(settings) {
   // set the ranges
   var x = d3.scaleTime().range([0, width]);
   var y = d3.scaleLinear().range([height/2, 0]);
+  var y2 = d3.scaleLinear().range([height/2, 0]);
 
   // datasets
   var points = [];
@@ -48,12 +49,18 @@ var DDTimelines = function(settings) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // containers
-  var pointsContainer = svg.append("g")
+  var lineContainer = svg.append("g")
       .append("path")
       .attr('vector-effect', 'non-scaling-stroke')
-      .attr("class", "points");
+      .attr("class", "line");
+      
+  var barContainer = svg.append("g")
+      .attr("class", "bars");
+
   var timelineContainer = svg.append("g")
       .attr("class", "timelines");
+
+  var combination;
 
   // Add the X Axis
   var axisX = d3.axisBottom(x)
@@ -65,6 +72,10 @@ var DDTimelines = function(settings) {
   var axisY = d3.axisLeft(y);
   var groupY = svg.append("g")
     .call(axisY);
+  var axisY2 = d3.axisRight(y2);
+  var groupY2 = svg.append("g")
+    .attr("transform", "translate(" + width + ",0)")
+    .call(axisY2);
 
   var bisect = d3.bisector(function(d){return d.at;}).left;
 
@@ -98,10 +109,11 @@ var DDTimelines = function(settings) {
           loadLineData(url);
           break;
         case "bar":
-
+          loadBarData(url);
           break;
-        case "dual":
-
+        case "combo":
+          combination = tl.combination;
+          loadComboData(url);
           break;
         case "duration":
           loadTimelineData(url);
@@ -110,7 +122,7 @@ var DDTimelines = function(settings) {
 
           break;
         default:
-          console.error("Specify the type: line, bar, dual, duration, event");
+          console.error("Specify the type: line, bar, combo, duration, event");
       }
     });
   }
@@ -121,6 +133,24 @@ var DDTimelines = function(settings) {
       q += "&" + key + "=" + queries[key];
     });
     return q;
+  }
+
+  function loadBarData(url) {
+    d3.queue()
+      .defer(d3.json, url)
+      .await(function(error, _points) {
+        if(error) throw error;
+
+        // format the point data
+        _points.data.forEach(function(d) {
+          d.at = parseTime(d.at);
+          d.value = +d.value;
+        });
+
+        points = points.concat(_points.data);
+        points.sort();
+        showBars();
+      });
   }
 
   function loadLineData(url) {
@@ -136,7 +166,24 @@ var DDTimelines = function(settings) {
         });
 
         points = points.concat(_points.data);
-        showPoints();
+        showLine();
+      });
+  }
+
+  function loadComboData(url) {
+    d3.queue()
+      .defer(d3.json, url)
+      .await(function(error, _points) {
+        if(error) throw error;
+
+        _points.data.forEach(function(d) {
+          d.at = parseTime(d.at);
+          d.value[0] = +d.value[0];
+          d.value[1] = +d.value[1];
+        });
+
+        points = points.concat(_points.data);
+        showCombo();
       });
   }
 
@@ -157,16 +204,87 @@ var DDTimelines = function(settings) {
       });
   }
 
-  function showPoints() {
+  function showBars() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
     y.domain(d3.extent(points, function(d) { return d.value; }));
 
-    pointsContainer.data([points])
+    var bars = barContainer
+      .selectAll("rect")
+      .data(points);
+
+    bars.enter()
+      .append("rect")
+      .attr("x", function(d) { return x(d.at); })
+      .attr("width", 10)
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height/2 - y(d.value); });
+
+    groupY.call(axisY);
+  }
+
+  function showLine() {
+    // Scale the range of the data
+    x.domain([sinceDate, untilDate]);
+    y.domain(d3.extent(points, function(d) { return d.value; }));
+
+    lineContainer.data([points])
       .attr("class", "line")
       .attr("d", line);
 
     groupY.call(axisY);
+  }
+
+  function showCombo() {
+    // Scale the range of the data
+    x.domain([sinceDate, untilDate]);
+    y.domain(d3.extent(points, function(d) { return d.value[0]; }));
+    y2.domain(d3.extent(points, function(d) { return d.value[1]; }));
+
+    combination.forEach(function(type, index) {
+      if(type == "line") {
+        lineContainer.data([points])
+          .attr("class", "line")
+          .attr("d", d3.line()
+            .x(function(d){return x(d.at);})
+            .y(function(d){
+              if(index == 0) {
+                return y(d.value[0]);
+              } else if(index == 1) {
+                return y2(d.value[1]);
+              }
+            }
+          )
+        );
+      } else if(type == "bar") {
+        var bars = barContainer
+          .selectAll("rect")
+          .data(points);
+
+        bars.enter()
+          .append("rect")
+          .attr("x", function(d) { return x(d.at); })
+          .attr("width", 10)
+          .attr("y", function(d) {
+            if(index == 0) {
+              return y(d.value[0]);
+            } else if(index == 1) {
+              return y2(d.value[1]);
+            }
+          })
+          .attr("height", function(d) {
+            if(index == 0) {
+              return height/2 - y(d.value[0]);
+            } else if(index == 1) {
+              return height/2 - y2(d.value[1]);
+            }
+          }
+        );
+      }
+    });
+
+    groupY.call(axisY);
+    groupY2.call(axisY2);
   }
 
   function showTimelines() {
@@ -217,16 +335,16 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseMove() {
-    var coords = d3.mouse(this);
-    var posX = x.invert(coords[0]);
-    var arrayIndex = bisect(points, posX, 0, points.length);
-    var smaller = points[arrayIndex-1];
-    var larger = points[arrayIndex];
-    if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
-      var match = posX - smaller.at < larger.at - posX ? smaller : larger;
-      activePoint.attr("cx", x(match.at))
-        .attr("cy", y(match.value));
-    }
+    // var coords = d3.mouse(this);
+    // var posX = x.invert(coords[0]);
+    // var arrayIndex = bisect(points, posX, 0, points.length);
+    // var smaller = points[arrayIndex-1];
+    // var larger = points[arrayIndex];
+    // if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
+    //   var match = posX - smaller.at < larger.at - posX ? smaller : larger;
+    //   activePoint.attr("cx", x(match.at))
+    //     .attr("cy", y(match.value));
+    // }
   }
 
   function onMouseOut() {
@@ -235,7 +353,8 @@ var DDTimelines = function(settings) {
 
   function onZoom() {
     var t = d3.event.transform;
-    pointsContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    lineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    barContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     timelineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
