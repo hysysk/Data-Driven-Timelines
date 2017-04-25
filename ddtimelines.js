@@ -50,12 +50,24 @@ var DDTimelines = function(settings) {
 
   // containers
   var lineContainer = svg.append("g")
+      .attr("class", "lineContainer")
       .append("path")
-      .attr('vector-effect', 'non-scaling-stroke')
-      .attr("class", "line");
+      .attr('vector-effect', 'non-scaling-stroke');
+
+  var lineContainer2 = svg.append("g")
+      .attr("class", "lineContainer2")
+      .append("path")
+      .attr('vector-effect', 'non-scaling-stroke');
+
+  var lineContainers = [lineContainer, lineContainer2];
 
   var barContainer = svg.append("g")
-      .attr("class", "bars");
+      .attr("class", "barContainer");
+
+  var barContainer2 = svg.append("g")
+      .attr("class", "barContainer2");
+
+  var barContainers = [barContainer, barContainer2];
 
   var timelineContainer = svg.append("g")
       .attr("class", "timelines");
@@ -255,7 +267,7 @@ var DDTimelines = function(settings) {
 
     combination.forEach(function(type, index) {
       if(type == "line") {
-        lineContainer.data([points])
+        lineContainers[index].data([points])
           .attr("class", "line")
           .attr("d", d3.line()
             .x(function(d){return x(d.at);})
@@ -269,7 +281,7 @@ var DDTimelines = function(settings) {
           )
         );
       } else if(type == "bar") {
-        var bars = barContainer
+        var bars = barContainers[index]
           .selectAll("rect")
           .data(points);
 
@@ -366,7 +378,9 @@ var DDTimelines = function(settings) {
   function onZoom() {
     var t = d3.event.transform;
     lineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    lineContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     barContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    barContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     timelineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 

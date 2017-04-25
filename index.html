@@ -18,11 +18,19 @@
         timelines: [
           {
             type: 'combo',
-            combination: ['bar', 'line'],
+            combination: ['line', 'line'],
             url: 'http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points',
             queries: {
               id: '34216',
               var: 'prec,temp'
+            }
+          },
+          {
+            type: 'duration',
+            url: 'http://agora.ex.nii.ac.jp/timeline/v1/jmaxml-alert/durations.pl',
+            queries: {
+              acode: '040000',
+              ktype: 'wind,rain'
             }
           }
         ]

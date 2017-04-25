@@ -2,10 +2,24 @@
   opacity: 0.2;
 }
 
-.line {
+.lineContainer .line {
   fill: none;
-  stroke: #ccc;
+  stroke: #FF1493;
   stroke-width: 2px;
+}
+
+.lineContainer2 .line {
+  fill: none;
+  stroke: #005AFF;
+  stroke-width: 2px;
+}
+
+.barContainer {
+  fill: #9AF15A;
+}
+
+.barContainer2 {
+  fill: #FFE100;
 }
 
 .level2 {
@@ -22,3 +36,5 @@
   fill: #f00;
   stroke: none;
 }
+
+.
