@@ -204,6 +204,8 @@ var DDTimelines = function(settings) {
       .await(function(error, _points) {
         if(error) throw error;
 
+        console.log(_points.data[_points.data.length-1].at);
+
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
           d.value[0] = +d.value[0];
@@ -394,23 +396,21 @@ var DDTimelines = function(settings) {
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
     if(Math.ceil((t.x/width) / t.k) == -forwardIndex) {
-      forwardIndex++;
-
       newSinceDate = new Date(sinceDate.getTime() + duration*forwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
       newUntilDate = new Date(untilDate.getTime() + duration*forwardIndex);
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
+      forwardIndex++;
     } else if(Math.floor((t.x/width) / t.k) == backwardIndex) {
-      backwardIndex++;
-
       newSinceDate = new Date(sinceDate.getTime() - duration*backwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
       newUntilDate = new Date(untilDate.getTime() - duration*backwardIndex);
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
+      backwardIndex++;
     }
   }
 };
