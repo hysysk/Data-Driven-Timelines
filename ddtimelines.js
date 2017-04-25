@@ -53,7 +53,7 @@ var DDTimelines = function(settings) {
       .append("path")
       .attr('vector-effect', 'non-scaling-stroke')
       .attr("class", "line");
-      
+
   var barContainer = svg.append("g")
       .attr("class", "bars");
 
@@ -135,6 +135,16 @@ var DDTimelines = function(settings) {
     return q;
   }
 
+  function compare(a, b) {
+    if(a.at < b.at) {
+      return -1;
+    }
+    if(a.at > b.at) {
+      return 1;
+    }
+    return 0;
+  }
+
   function loadBarData(url) {
     d3.queue()
       .defer(d3.json, url)
@@ -166,6 +176,7 @@ var DDTimelines = function(settings) {
         });
 
         points = points.concat(_points.data);
+        points.sort(compare);
         showLine();
       });
   }
@@ -183,6 +194,7 @@ var DDTimelines = function(settings) {
         });
 
         points = points.concat(_points.data);
+        points.sort(compare);
         showCombo();
       });
   }
