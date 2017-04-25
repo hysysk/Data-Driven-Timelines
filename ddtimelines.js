@@ -204,8 +204,6 @@ var DDTimelines = function(settings) {
       .await(function(error, _points) {
         if(error) throw error;
 
-        console.log(_points.data[_points.data.length-1].at);
-
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
           d.value[0] = +d.value[0];
