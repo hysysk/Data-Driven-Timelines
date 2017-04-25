@@ -72,6 +72,8 @@ var DDTimelines = function(settings) {
   var timelineContainer = svg.append("g")
       .attr("class", "timelines");
 
+  var labels;
+
   var combination;
 
   // Add the X Axis
@@ -106,9 +108,12 @@ var DDTimelines = function(settings) {
   backgroundRect.on('mousemove', onMouseMove);
   backgroundRect.on('mouseout', onMouseOut);
 
-  // Active point
-  var activePoint = svg.append('circle')
-    .attr("r", 5);
+  // Focus line
+  var focus = svg.append('g');
+  focus.append('line')
+    .attr('id', 'focusLineX')
+    .attr('class', 'focusLine')
+    .attr('pointer-events', 'none');
 
   loadNewData(settings.since, settings.until);
 
@@ -330,7 +335,7 @@ var DDTimelines = function(settings) {
 
       rects.exit().remove();
 
-      var labels = timelineContainer.append("g")
+      labels = timelineContainer.append("g")
         .attr("transform", "translate(0," + i * 20 + ")")
         .selectAll("text")
         .data(timelineBands);
@@ -359,16 +364,18 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseMove() {
-    // var coords = d3.mouse(this);
-    // var posX = x.invert(coords[0]);
-    // var arrayIndex = bisect(points, posX, 0, points.length);
-    // var smaller = points[arrayIndex-1];
-    // var larger = points[arrayIndex];
+    var coords = d3.mouse(this);
+    var posX = x.invert(coords[0]);
+    var arrayIndex = bisect(points, posX, 0, points.length);
+    var smaller = points[arrayIndex-1];
+    var larger = points[arrayIndex];
     // if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
     //   var match = posX - smaller.at < larger.at - posX ? smaller : larger;
-    //   activePoint.attr("cx", x(match.at))
-    //     .attr("cy", y(match.value));
     // }
+
+    focus.select('#focusLineX')
+      .attr('x1', x(posX)).attr('y1', 0)
+      .attr('x2', x(posX)).attr('y2', height);
   }
 
   function onMouseOut() {
@@ -382,6 +389,7 @@ var DDTimelines = function(settings) {
     barContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     barContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     timelineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;

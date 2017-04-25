@@ -37,4 +37,8 @@
   stroke: none;
 }
 
-.
+.focusLine {
+  fill: none;
+  stroke: #000;
+  stroke-dasharray: 3;
+}
