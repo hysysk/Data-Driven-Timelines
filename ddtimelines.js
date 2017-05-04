@@ -34,11 +34,12 @@ var DDTimelines = function(settings) {
       .padding(5)
       .extent([settings.since, settings.until]);
 
-  var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
-  var formatTime = d3.timeFormat("%Y-%m-%dT%H:%M:%SZ");
+  var formatString = "%Y-%m-%dT%H:%M:%S"+ String(settings.utcOffset);
+  var parseTime = d3.timeParse(formatString);
+  var formatTime = d3.timeFormat(formatString);
 
-  var sinceDate = new Date(settings.since);
-  var untilDate = new Date(settings.until);
+  var sinceDate = new Date(settings.since+settings.utcOffset);
+  var untilDate = new Date(settings.until+settings.utcOffset);
   var duration = untilDate - sinceDate;
 
   // drawing area
@@ -115,7 +116,7 @@ var DDTimelines = function(settings) {
     .attr('class', 'focusLine')
     .attr('pointer-events', 'none');
 
-  loadNewData(settings.since, settings.until);
+  loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
   // timelinesのtypeを読む
   function loadNewData(since, until) {
