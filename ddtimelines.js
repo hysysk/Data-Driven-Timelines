@@ -10,9 +10,8 @@ var DDTimelines = function(settings) {
   var y = d3.scaleLinear().range([height/2, 0]);
   var y2 = d3.scaleLinear().range([height/2, 0]);
 
-  // datasets
-  var points = [];
-  var timelines = [];
+  // dataset
+  var dataset = d3.ddtimelines.timelineData();
 
   var forwardIndex = 1;
   var backwardIndex = 1;
@@ -160,16 +159,6 @@ var DDTimelines = function(settings) {
     return q;
   }
 
-  function compare(a, b) {
-    if(a.at < b.at) {
-      return -1;
-    }
-    if(a.at > b.at) {
-      return 1;
-    }
-    return 0;
-  }
-
   function loadBarData(url) {
     d3.queue()
       .defer(d3.json, url)
@@ -182,8 +171,7 @@ var DDTimelines = function(settings) {
           d.value = +d.value;
         });
 
-        points = points.concat(_points.data);
-        points.sort();
+        dataset.addPoints(_points.data);
         showBars();
       });
   }
@@ -200,8 +188,7 @@ var DDTimelines = function(settings) {
           d.value = +d.value;
         });
 
-        points = points.concat(_points.data);
-        points.sort(compare);
+        dataset.addPoints(_points.data);
         showLine();
       });
   }
@@ -218,8 +205,7 @@ var DDTimelines = function(settings) {
           d.value[1] = +d.value[1];
         });
 
-        points = points.concat(_points.data);
-        points.sort();
+        dataset.addPoints(_points.data);
         showCombo();
       });
   }
@@ -236,7 +222,7 @@ var DDTimelines = function(settings) {
           d.end_at = parseTime(d.end_at);
         });
 
-        timelines = _timelines.data;
+        dataset.addTimelines(_timelines.data);
         showTimelines();
       });
   }
@@ -244,11 +230,11 @@ var DDTimelines = function(settings) {
   function showBars() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(points, function(d) { return d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) { return d.value; }));
 
-    var bars = barContainer
+    var bars = barContainer.append("g")
       .selectAll("rect")
-      .data(points);
+      .data(dataset.points);
 
     bars.enter()
       .append("rect")
@@ -263,9 +249,9 @@ var DDTimelines = function(settings) {
   function showLine() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(points, function(d) { return d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) { return d.value; }));
 
-    lineContainer.data([points])
+    lineContainer.data([dataset.points])
       .attr("class", "line")
       .attr("d", line);
 
@@ -285,12 +271,12 @@ var DDTimelines = function(settings) {
   function showCombo() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(points, function(d) { return d.value[0]; }));
-    y2.domain(d3.extent(points, function(d) { return d.value[1]; }));
+    y.domain(d3.extent(dataset.points, function(d) { return d.value[0]; }));
+    y2.domain(d3.extent(dataset.points, function(d) { return d.value[1]; }));
 
     combination.forEach(function(type, index) {
       if(type == "line") {
-        lineContainers[index].data([points])
+        lineContainers[index].data([dataset.points])
           .attr("class", "line")
           .attr("d", d3.line()
             .x(function(d){return x(d.at);})
@@ -304,9 +290,9 @@ var DDTimelines = function(settings) {
           )
         );
       } else if(type == "bar") {
-        var bars = barContainers[index]
+        var bars = barContainers[index].append("g")
           .selectAll("rect")
-          .data(points);
+          .data(dataset.points);
 
         bars.enter()
           .append("rect")
@@ -335,7 +321,7 @@ var DDTimelines = function(settings) {
   }
 
   function showTimelines() {
-    timelines.forEach(function(tl, i) {
+    dataset.timelines.forEach(function(tl, i) {
       var timelineBands = timeline(tl.duration);
       var rects = timelineContainer.append("g")
         .attr("transform", "translate(0," + i * 17 + ")")
@@ -384,9 +370,9 @@ var DDTimelines = function(settings) {
   function onMouseMove() {
     var coords = d3.mouse(this);
     var posX = x.invert(coords[0]);
-    var arrayIndex = bisect(points, posX, 0, points.length);
-    var smaller = points[arrayIndex-1];
-    var larger = points[arrayIndex];
+    var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
+    var smaller = dataset.points[arrayIndex-1];
+    var larger = dataset.points[arrayIndex];
     // if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
     //   var match = posX - smaller.at < larger.at - posX ? smaller : larger;
     // }

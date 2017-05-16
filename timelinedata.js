@@ -8,6 +8,7 @@ d3.ddtimelines.timelineData = function module() {
 
   exports.addPoints = function(_data) {
     exports.points = exports.points.concat(_data);
+    exports.sortPoints(compare);
   };
 
   exports.addTimelines = function(_data) {
