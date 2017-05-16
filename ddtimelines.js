@@ -1,7 +1,7 @@
 var DDTimelines = function(settings) {
   // set the dimensions and margins
   var size = settings.size;
-  var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  var margin = { top: 20, right: 30, bottom: 30, left: 50 };
   var width = size[0] - margin.left - margin.right;
   var height = size[1] - margin.top - margin.bottom;
 
@@ -99,6 +99,8 @@ var DDTimelines = function(settings) {
       .scaleExtent([1, 12])
       .on("zoom", onZoom);
 
+  var translate = [0, 0];
+
   var backgroundRect = svg.append("rect")
     .attr("width", width)
     .attr("height", height)
@@ -109,12 +111,17 @@ var DDTimelines = function(settings) {
   backgroundRect.on('mousemove', onMouseMove);
   backgroundRect.on('mouseout', onMouseOut);
 
+  d3.selectAll('.button--zoom').on('click', onZoomClick);
+
   // Focus line
   var focus = svg.append('g');
   focus.append('line')
     .attr('id', 'focusLineX')
     .attr('class', 'focusLine')
     .attr('pointer-events', 'none');
+
+  // Zoom button
+  d3.selectAll('.button__zoom').on('click', onZoomClick);
 
   loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
@@ -262,6 +269,16 @@ var DDTimelines = function(settings) {
       .attr("class", "line")
       .attr("d", line);
 
+    svg.append("g")
+      .attr("class", "legend")
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - height/4)
+      .attr("dy", "1em")
+      .attr("font-size", "14px")
+      .text("気温");
+
     groupY.call(axisY);
   }
 
@@ -383,8 +400,26 @@ var DDTimelines = function(settings) {
 
   }
 
-  function onZoom() {
+  function onZoomClick() {
+    zoom.scaleBy(lineContainer, 2);
+    zoom.scaleBy(lineContainer2, 2);
+    zoom.scaleBy(barContainer, 2);
+    zoom.scaleBy(barContainer2, 2);
+    zoom.scaleBy(timelineContainer, 2);
+  }
+
+  function onZoom(_translate, scale) {
     var t = d3.event.transform;
+    if(arguments.length == 2) {
+      t.x = _translate[0];
+      t.y = _translate[1];
+      t.k = scale;
+    } else {
+      translate[0] = t.x;
+      translate[1] = 0;
+      t = d3.event.transform;
+    }
+
     lineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     lineContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     barContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
@@ -394,7 +429,7 @@ var DDTimelines = function(settings) {
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
-    if(Math.ceil((t.x/width) / t.k) == -forwardIndex) {
+    if(Math.ceil(((t.x - width/2)/width) / t.k) == -forwardIndex) {
       newSinceDate = new Date(sinceDate.getTime() + duration*forwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
@@ -402,7 +437,7 @@ var DDTimelines = function(settings) {
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
       forwardIndex++;
-    } else if(Math.floor((t.x/width) / t.k) == backwardIndex) {
+    } else if(Math.floor(((t.x + width/2)/width) / t.k) == backwardIndex) {
       newSinceDate = new Date(sinceDate.getTime() - duration*backwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 

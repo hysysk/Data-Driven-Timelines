@@ -2992,6 +2992,12 @@ Transform.prototype = {
 
 var identity$1 = new Transform(1, 0, 0);
 
+transform.prototype = Transform.prototype;
+
+function transform(node) {
+  return node.__zoom || identity$1;
+}
+
 function nopropagation$1() {
   exports.event.stopImmediatePropagation();
 }
@@ -6526,6 +6532,7 @@ exports.select = select;
 exports.selectAll = selectAll;
 exports.mouse = mouse;
 exports.zoom = zoom;
+exports.zoomTransform = transform;
 exports.axisTop = axisTop;
 exports.axisBottom = axisBottom;
 exports.axisRight = axisRight;

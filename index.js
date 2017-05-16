@@ -6,7 +6,8 @@ export {
 } from "d3-selection";
 
 export {
-  zoom
+  zoom,
+  zoomTransform
 } from "d3-zoom";
 
 export {
