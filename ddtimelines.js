@@ -219,7 +219,7 @@ var DDTimelines = function(settings) {
         });
 
         points = points.concat(_points.data);
-        points.sort(compare);
+        points.sort();
         showCombo();
       });
   }
