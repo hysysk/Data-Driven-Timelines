@@ -11,6 +11,10 @@ export {
 } from "d3-zoom";
 
 export {
+  drag
+} from "d3-drag";
+
+export {
   axisTop,
   axisBottom,
   axisRight,

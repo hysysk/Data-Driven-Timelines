@@ -49,27 +49,30 @@ var DDTimelines = function(settings) {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // containers
-  var lineContainer = svg.append("g")
+  var chartContainer = svg.append("g")
+    .attr("class", "chartContainer");
+
+  var lineContainer = chartContainer.append("g")
       .attr("class", "lineContainer")
       .append("path")
       .attr('vector-effect', 'non-scaling-stroke');
 
-  var lineContainer2 = svg.append("g")
+  var lineContainer2 = chartContainer.append("g")
       .attr("class", "lineContainer2")
       .append("path")
       .attr('vector-effect', 'non-scaling-stroke');
 
   var lineContainers = [lineContainer, lineContainer2];
 
-  var barContainer = svg.append("g")
+  var barContainer = chartContainer.append("g")
       .attr("class", "barContainer");
 
-  var barContainer2 = svg.append("g")
+  var barContainer2 = chartContainer.append("g")
       .attr("class", "barContainer2");
 
   var barContainers = [barContainer, barContainer2];
 
-  var timelineContainer = svg.append("g")
+  var timelineContainer = chartContainer.append("g")
       .attr("class", "timelines");
 
   var labels;
@@ -255,15 +258,15 @@ var DDTimelines = function(settings) {
       .attr("class", "line")
       .attr("d", line);
 
-    svg.append("g")
-      .attr("class", "legend")
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 0 - margin.left)
-      .attr("x", 0 - height/4)
-      .attr("dy", "1em")
-      .attr("font-size", "14px")
-      .text("気温");
+    // svg.append("g")
+    //   .attr("class", "legend")
+    //   .append("text")
+    //   .attr("transform", "rotate(-90)")
+    //   .attr("y", 0 - margin.left)
+    //   .attr("x", 0 - height/4)
+    //   .attr("dy", "1em")
+    //   .attr("font-size", "14px")
+    //   .text("気温");
 
     groupY.call(axisY);
   }
@@ -387,31 +390,19 @@ var DDTimelines = function(settings) {
   }
 
   function onZoomClick() {
-    zoom.scaleBy(lineContainer, 2);
-    zoom.scaleBy(lineContainer2, 2);
-    zoom.scaleBy(barContainer, 2);
-    zoom.scaleBy(barContainer2, 2);
-    zoom.scaleBy(timelineContainer, 2);
+    if(d3.event.target.id === 'zoom_in') {
+      console.log("zoom in");
+    } else if(d3.event.target.id === 'zoom_out') {
+      console.log("zoom out");
+    } else {
+      console.log("zoom reset");
+    }
   }
 
-  function onZoom(_translate, scale) {
+  function onZoom() {
     var t = d3.event.transform;
-    if(arguments.length == 2) {
-      t.x = _translate[0];
-      t.y = _translate[1];
-      t.k = scale;
-    } else {
-      translate[0] = t.x;
-      translate[1] = 0;
-      t = d3.event.transform;
-    }
 
-    lineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-    lineContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-    barContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-    barContainer2.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-    timelineContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-
+    chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
