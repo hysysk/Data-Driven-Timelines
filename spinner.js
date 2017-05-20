@@ -24,20 +24,24 @@ d3.ddtimelines.spinner = function module(svg, settings) {
       .attr("d", arc);
 
     spin();
-    setInterval(spin, 1000);
-
-    function spin() {
-      path.transition()
-        .duration(1000)
-        .ease(d3.easeLinear)
-        .attrTween("transform", function() {
-          return d3.interpolateString("rotate(0)", "rotate(360)");
-        });
-    }
   };
 
+  function spin() {
+    path.transition()
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .attrTween("transform", function() {
+        return d3.interpolateString("rotate(0)", "rotate(360)");
+      })
+      .on("end", spin);
+  }
+
   exports.setVisible = function(visibility) {
-    path.style("visibility", visibility);
+    if(visibility) {
+      path.style("visibility", "visible");
+    } else {
+      path.style("visibility", "hidden");
+    }
   }
 
   return exports;

@@ -115,7 +115,7 @@ var DDTimelines = function(settings) {
 
   var loading = d3.ddtimelines.spinner(svg, {'width':44, 'height':44, 'containerWidth':width, 'containerHeight':height});
   loading();
-  loading.setVisible("hidden");
+  loading.setVisible(false);
 
   // Focus line
   var focus = svg.append('g');
@@ -165,7 +165,7 @@ var DDTimelines = function(settings) {
   }
 
   function loadBarData(url) {
-    loading.setVisible("visible");
+    loading.setVisible(true);
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -179,12 +179,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showBars();
-        loading.setVisible("visible");
+        loading.setVisible(false);
       });
   }
 
   function loadLineData(url) {
-    loading.setVisible("visible");
+    loading.setVisible(true);
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -198,12 +198,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showLine();
-        loading.setVisible("hidden");
+        loading.setVisible(false);
       });
   }
 
   function loadComboData(url) {
-    loading.setVisible("visible");
+    loading.setVisible(true);
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -217,12 +217,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showCombo();
-        loading.setVisible("hidden");
+        loading.setVisible(false);
       });
   }
 
   function loadTimelineData(url) {
-    loading.setVisible("visible");
+    loading.setVisible(true);
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _timelines) {
@@ -236,7 +236,7 @@ var DDTimelines = function(settings) {
 
         dataset.addTimelines(_timelines.data);
         showTimelines();
-        loading.setVisible("hidden");
+        loading.setVisible(false);
       });
   }
 
