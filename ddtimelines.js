@@ -25,6 +25,8 @@ var DDTimelines = function(settings) {
       .x(function(d) { return x(d.at); })
       .y(function(d) { return y(d.value); });
 
+  var barWidth = 5;
+
   // define the timeline
   var timeline = d3.timeline()
       .size([width, height])
@@ -251,8 +253,8 @@ var DDTimelines = function(settings) {
     // enter
     bars.enter()
       .append("rect")
-      .attr("x", function(d,i) { return x(d.at); })
-      .attr("width", 10)
+      .attr("x", function(d) { return x(d.at) - barWidth/2; })
+      .attr("width", barWidth)
       .attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height/2 - y(d.value); });
 
@@ -329,8 +331,8 @@ var DDTimelines = function(settings) {
         // enter
         bars.enter()
           .append("rect")
-          .attr("x", function(d) { return x(d.at); })
-          .attr("width", 10)
+          .attr("x", function(d) { return x(d.at) - barWidth/2; })
+          .attr("width", barWidth)
           .attr("y", function(d) {
             if(index == 0) {
               return y(d.value[0]);
