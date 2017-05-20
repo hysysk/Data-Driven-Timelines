@@ -90,9 +90,7 @@ var DDTimelines = function(settings) {
   var groupY = svg.append("g")
     .call(axisY);
   var axisY2 = d3.axisRight(y2);
-  var groupY2 = svg.append("g")
-    .attr("transform", "translate(" + width + ",0)")
-    .call(axisY2);
+  var groupY2;
 
   var bisect = d3.bisector(function(d){return d.at;}).left;
 
@@ -114,6 +112,10 @@ var DDTimelines = function(settings) {
   backgroundRect.on('mouseout', onMouseOut);
 
   d3.selectAll('.button--zoom').on('click', onZoomClick);
+
+  var loading = d3.ddtimelines.spinner(svg, {'width':44, 'height':44, 'containerWidth':width, 'containerHeight':height});
+  loading();
+  loading.setVisible("hidden");
 
   // Focus line
   var focus = svg.append('g');
@@ -163,6 +165,7 @@ var DDTimelines = function(settings) {
   }
 
   function loadBarData(url) {
+    loading.setVisible("visible");
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -176,10 +179,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showBars();
+        loading.setVisible("visible");
       });
   }
 
   function loadLineData(url) {
+    loading.setVisible("visible");
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -193,10 +198,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showLine();
+        loading.setVisible("hidden");
       });
   }
 
   function loadComboData(url) {
+    loading.setVisible("visible");
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
@@ -210,10 +217,12 @@ var DDTimelines = function(settings) {
 
         dataset.addPoints(_points.data);
         showCombo();
+        loading.setVisible("hidden");
       });
   }
 
   function loadTimelineData(url) {
+    loading.setVisible("visible");
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _timelines) {
@@ -227,6 +236,7 @@ var DDTimelines = function(settings) {
 
         dataset.addTimelines(_timelines.data);
         showTimelines();
+        loading.setVisible("hidden");
       });
   }
 
@@ -276,6 +286,12 @@ var DDTimelines = function(settings) {
     x.domain([sinceDate, untilDate]);
     y.domain(d3.extent(dataset.points, function(d) { return d.value[0]; }));
     y2.domain(d3.extent(dataset.points, function(d) { return d.value[1]; }));
+
+    if(!groupY2) {
+      groupY2 = svg.append("g")
+       .attr("transform", "translate(" + width + ",0)")
+       .call(axisY2);
+    }
 
     combination.forEach(function(type, index) {
       if(type == "line") {

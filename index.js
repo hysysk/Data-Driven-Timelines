@@ -27,8 +27,13 @@ export {
 } from "d3-scale";
 
 export {
-  line
+  line,
+  arc
 } from "d3-shape";
+
+export {
+  easeLinear
+} from "d3-ease";
 
 export {
   min,
@@ -48,6 +53,10 @@ export {
 export {
   json
 } from 'd3-request'
+
+export {
+  interpolateString
+} from 'd3-interpolate'
 
 export {
   timeFormat,
