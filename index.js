@@ -7,7 +7,8 @@ export {
 
 export {
   zoom,
-  zoomTransform
+  zoomTransform,
+  zoomIdentity
 } from "d3-zoom";
 
 export {

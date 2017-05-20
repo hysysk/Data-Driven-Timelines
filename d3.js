@@ -6980,6 +6980,7 @@ exports.selectAll = selectAll;
 exports.mouse = mouse;
 exports.zoom = zoom;
 exports.zoomTransform = transform;
+exports.zoomIdentity = identity$1;
 exports.drag = drag;
 exports.axisTop = axisTop;
 exports.axisBottom = axisBottom;

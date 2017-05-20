@@ -439,10 +439,13 @@ var DDTimelines = function(settings) {
   function onZoomClick() {
     if(d3.event.target.id === 'zoom_in') {
       console.log("zoom in");
+      zoom.scaleBy(chartContainer, 2);
     } else if(d3.event.target.id === 'zoom_out') {
       console.log("zoom out");
+      zoom.scaleBy(chartContainer, 0.5);
     } else {
       console.log("zoom reset");
+      chartContainer.call(zoom.transform, d3.zoomIdentity);
     }
   }
 
