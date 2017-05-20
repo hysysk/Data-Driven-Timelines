@@ -21,6 +21,7 @@ var DDTimelines = function(settings) {
 
   // define the line
   var line = d3.line()
+      .defined(function(d) { return d.value[0] !== null; })
       .x(function(d) { return x(d.at); })
       .y(function(d) { return y(d.value); });
 
@@ -174,7 +175,6 @@ var DDTimelines = function(settings) {
         // format the point data
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
-          d.value = +d.value;
         });
 
         dataset.addPoints(_points.data);
@@ -193,7 +193,6 @@ var DDTimelines = function(settings) {
         // format the point data
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
-          d.value = +d.value;
         });
 
         dataset.addPoints(_points.data);
@@ -211,8 +210,6 @@ var DDTimelines = function(settings) {
 
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
-          d.value[0] = +d.value[0];
-          d.value[1] = +d.value[1];
         });
 
         dataset.addPoints(_points.data);
@@ -243,17 +240,24 @@ var DDTimelines = function(settings) {
   function showBars() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) { return +d.value; }));
 
-    var bars = barContainer.append("g")
-      .selectAll("rect")
-      .data(dataset.points);
+    var bars = barContainer.selectAll("rect")
+      .data(dataset.points, function(d) { return d.at; });
 
+    // exit
+    bars.exit().remove()
+
+    // enter
     bars.enter()
       .append("rect")
-      .attr("x", function(d) { return x(d.at); })
+      .attr("x", function(d,i) { return x(d.at); })
       .attr("width", 10)
       .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height/2 - y(d.value); });
+
+    // update
+    bars.attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height/2 - y(d.value); });
 
     groupY.call(axisY);
@@ -262,7 +266,7 @@ var DDTimelines = function(settings) {
   function showLine() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) { return +d.value; }));
 
     lineContainer.data([dataset.points])
       .attr("class", "line")
@@ -284,8 +288,8 @@ var DDTimelines = function(settings) {
   function showCombo() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return d.value[0]; }));
-    y2.domain(d3.extent(dataset.points, function(d) { return d.value[1]; }));
+    y.domain(d3.extent(dataset.points, function(d) { return +d.value[0]; }));
+    y2.domain(d3.extent(dataset.points, function(d) { return +d.value[1]; }));
 
     if(!groupY2) {
       groupY2 = svg.append("g")
@@ -298,6 +302,13 @@ var DDTimelines = function(settings) {
         lineContainers[index].data([dataset.points])
           .attr("class", "line")
           .attr("d", d3.line()
+            .defined(function(d) {
+              if(index == 0) {
+                return d.value[0]!==null;
+              } else if(index == 1) {
+                return d.value[1]!==null;
+              }
+            })
             .x(function(d){return x(d.at);})
             .y(function(d){
               if(index == 0) {
@@ -305,14 +316,17 @@ var DDTimelines = function(settings) {
               } else if(index == 1) {
                 return y2(d.value[1]);
               }
-            }
-          )
-        );
+            })
+          );
       } else if(type == "bar") {
-        var bars = barContainers[index].append("g")
+        var bars = barContainers[index]
           .selectAll("rect")
-          .data(dataset.points);
+          .data(dataset.points, function(d) { return d.at; });
 
+        // exit
+        bars.exit().remove();
+
+        // enter
         bars.enter()
           .append("rect")
           .attr("x", function(d) { return x(d.at); })
@@ -330,8 +344,23 @@ var DDTimelines = function(settings) {
             } else if(index == 1) {
               return height/2 - y2(d.value[1]);
             }
-          }
-        );
+          });
+
+        // update
+        bars.attr("y", function(d) {
+            if(index == 0) {
+              return y(d.value[0]);
+            } else if(index == 1) {
+              return y2(d.value[1]);
+            }
+          })
+          .attr("height", function(d) {
+            if(index == 0) {
+              return height/2 - y(d.value[0]);
+            } else if(index == 1) {
+              return height/2 - y2(d.value[1]);
+            }
+          });
       }
     });
 
@@ -358,20 +387,20 @@ var DDTimelines = function(settings) {
 
       rects.exit().remove();
 
-      labels = timelineContainer.append("g")
-        .attr("transform", "translate(0," + i * 20 + ")")
-        .selectAll("text")
-        .data(timelineBands);
-
-      labels.enter()
-        .append("text")
-        .text(function(d){return d.label;})
-        .attr("x", function(d){return d.start;})
-        .attr("y", function(d){return height/2 + margin.bottom + (i+1)*12;})
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 12);
-
-      labels.exit().remove();
+      // labels = timelineContainer.append("g")
+      //   .attr("transform", "translate(0," + i * 20 + ")")
+      //   .selectAll("text")
+      //   .data(timelineBands);
+      //
+      // labels.enter()
+      //   .append("text")
+      //   .text(function(d){return d.label;})
+      //   .attr("x", function(d){return d.start;})
+      //   .attr("y", function(d){return height/2 + margin.bottom + (i+1)*12;})
+      //   .attr("font-family", "sans-serif")
+      //   .attr("font-size", 12);
+      //
+      // labels.exit().remove();
 
       if(!isFirstTimeLoad) {
         d3.select("svg").append("g").append("text")
