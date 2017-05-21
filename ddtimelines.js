@@ -1,7 +1,7 @@
 var DDTimelines = function(settings) {
   // set the dimensions and margins
   var size = settings.size;
-  var margin = { top: 20, right: 30, bottom: 30, left: 50 };
+  var margin = { top: 20, right: 50, bottom: 30, left: 50 };
   var width = size[0] - margin.left - margin.right;
   var height = size[1] - margin.top - margin.bottom;
 
@@ -16,8 +16,6 @@ var DDTimelines = function(settings) {
   var forwardIndex = 1;
   var backwardIndex = 1;
   var loadedIndexes = [];
-
-  var isFirstTimeLoad = false;
 
   // define the line
   var line = d3.line()
@@ -90,6 +88,57 @@ var DDTimelines = function(settings) {
 
   var labels;
 
+  // label
+  settings.timelines.forEach(function(tl) {
+    if(tl.type == "line" || tl.type == "bar") {
+      g.append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - height/4)
+        .attr("dy", "1em")
+        .attr("font-size", 12)
+        .attr("font-family", "sans-serif")
+        .attr("text-anchor", "middle")
+        .text(tl.labels[0]);
+    } else if(tl.type == "combo") {
+      g.append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - height/4)
+        .attr("dy", "1em")
+        .attr("font-size", 12)
+        .attr("font-family", "sans-serif")
+        .attr("text-anchor", "middle")
+        .text(tl.labels[0]);
+
+        g.append("g")
+          .attr("class", "label")
+          .append("text")
+          .attr("transform", "rotate(90)")
+          .attr("x", height/4)
+          .attr("y", -width - margin.right)
+          .attr("dy", "1em")
+          .attr("font-size", 12)
+          .attr("font-family", "sans-serif")
+          .attr("text-anchor", "middle")
+          .text(tl.labels[1]);
+    } else if(tl.type == "duration") {
+      tl.labels.forEach(function(text, i) {
+        g.append("g").append("text")
+          .text(text)
+          .attr("y", height/2 + margin.bottom + (i+1)*32 - 20)
+          .attr("x", margin.left - 84)
+          .attr("font-family", "sans-serif")
+          .attr("font-size", 12)
+          .attr("text-anchor", "right");
+      });
+    }
+  });
+
   var combination;
 
   // Add the X Axis
@@ -143,7 +192,6 @@ var DDTimelines = function(settings) {
 
   loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
-  // timelinesのtypeを読む
   function loadNewData(since, until) {
     settings.timelines.forEach(function(tl) {
       var url = buildUrl(tl.url, since, until, tl.queries);
@@ -286,16 +334,6 @@ var DDTimelines = function(settings) {
       .attr("class", "line")
       .attr("d", line);
 
-    // svg.append("g")
-    //   .attr("class", "legend")
-    //   .append("text")
-    //   .attr("transform", "rotate(-90)")
-    //   .attr("y", 0 - margin.left)
-    //   .attr("x", 0 - height/4)
-    //   .attr("dy", "1em")
-    //   .attr("font-size", "14px")
-    //   .text("気温");
-
     groupX.call(axisX);
     groupY.call(axisY);
   }
@@ -417,18 +455,8 @@ var DDTimelines = function(settings) {
       //   .attr("font-size", 12);
       //
       // labels.exit().remove();
-
-      if(!isFirstTimeLoad) {
-        g.append("g").append("text")
-          .text(tl.label)
-          .attr("y", height/2 + margin.bottom + (i+1)*32 - 20)
-          .attr("x", margin.left - 84)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", 12)
-          .attr("text-anchor", "right");
-      }
     });
-    isFirstTimeLoad = true;
+
     groupX.call(axisX);
   }
 
