@@ -52,8 +52,17 @@ var DDTimelines = function(settings) {
   var g = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
   // containers
   var chartContainer = g.append("g")
+    .attr("class", "chartWrapper")
+    .attr("clip-path", "url(#clip)")
+    .append("g")
     .attr("class", "chartContainer");
 
   var lineContainer = chartContainer.append("g")
@@ -122,14 +131,6 @@ var DDTimelines = function(settings) {
   loading();
   loading.setVisible(false);
 
-  svg.append("defs").append("clipPath")
-    .attr("id", "clip")
-    .append("rect")
-    .attr("width", width)
-    .attr("height", height);
-
-  // svg.attr("clip-path", "url(#clip)");
-
   // Focus line
   var focus = g.append("g");
   focus.append("line")
@@ -138,7 +139,7 @@ var DDTimelines = function(settings) {
     .attr("pointer-events", "none");
 
   // Zoom button
-  d3.selectAll(".button__zoom").on("click", onZoomClick);
+  d3.selectAll(".button_zoom").on("click", onZoomClick);
 
   loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
