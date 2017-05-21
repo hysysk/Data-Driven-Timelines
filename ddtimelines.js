@@ -161,7 +161,8 @@ var DDTimelines = function(settings) {
       .scaleExtent([1, 12])
       .on("zoom", onZoom);
 
-  var translate = [0, 0];
+  // Zoom button
+  d3.selectAll(".button_zoom").on("click", onZoomClick);
 
   var focusRect = g.append("rect")
     .attr("class", "focus")
@@ -176,10 +177,6 @@ var DDTimelines = function(settings) {
 
   d3.selectAll('.button--zoom').on('click', onZoomClick);
 
-  var loading = d3.ddtimelines.spinner(svg, {"width":44, "height":44, "containerWidth": settings.size[0], "containerHeight": settings.size[1]});
-  loading();
-  loading.setVisible(false);
-
   // Focus line
   var focus = g.append("g");
   focus.append("line")
@@ -187,8 +184,16 @@ var DDTimelines = function(settings) {
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
 
-  // Zoom button
-  d3.selectAll(".button_zoom").on("click", onZoomClick);
+  var focusValue = g.append("text")
+    .attr("class", "point1");
+
+  var focusValue2 = g.append("text")
+    .attr("class", "point2");
+
+
+  var loading = d3.ddtimelines.spinner(svg, {"width":44, "height":44, "containerWidth": settings.size[0], "containerHeight": settings.size[1]});
+  loading();
+  loading.setVisible(false);
 
   loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
@@ -461,18 +466,29 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseMove() {
-    var coords = d3.mouse(this);
-    var posX = x.invert(coords[0]);
-    var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
-    var smaller = dataset.points[arrayIndex-1];
-    var larger = dataset.points[arrayIndex];
+    // var coords = d3.mouse(this);
+    // var posX = x.invert(coords[0]);
+    // var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
+    // var smaller = dataset.points[arrayIndex-1];
+    // var larger = dataset.points[arrayIndex];
     // if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
     //   var match = posX - smaller.at < larger.at - posX ? smaller : larger;
+    //   focusValue.text(match.value[0])
+    //     .attr("x", x(match.at))
+    //     .attr("y", y(match.value[0]))
+    //     .attr("font-family", "sans-serif")
+    //     .attr("font-size", 12);
+    //
+    //   focusValue2.text(match.value[1])
+    //     .attr("x", x(match.at))
+    //     .attr("y", y2(match.value[1]))
+    //     .attr("font-family", "sans-serif")
+    //     .attr("font-size", 12);
     // }
-
-    focus.select('#focusLineX')
-      .attr('x1', x(posX)).attr('y1', 0)
-      .attr('x2', x(posX)).attr('y2', height);
+    //
+    // focus.select('#focusLineX')
+    //   .attr('x1', x(posX)).attr('y1', 0)
+    //   .attr('x2', x(posX)).attr('y2', height);
   }
 
   function onMouseOut() {
