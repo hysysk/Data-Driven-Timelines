@@ -15,7 +15,10 @@ d3.ddtimelines.spinner = function module(svg, settings) {
       .attr("id", "spinner")
       .attr("width", settings.width)
       .attr("height", settings.height)
-      .attr("transform", "translate(" + settings.containerWidth/2 + "," + settings.containerHeight/2 + ")");
+      .attr("transform", "translate(" +
+        settings.containerWidth/2 + "," +
+        settings.containerHeight/2 + ")"
+      );
 
     path = container.append("path")
       .datum({endAngle: 0.33*tau})

@@ -47,23 +47,24 @@ var DDTimelines = function(settings) {
   // drawing area
   var svg = d3.select(settings.selector).append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-      .append("g")
+      .attr("height", height + margin.top + margin.bottom);
+
+  var g = svg.append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // containers
-  var chartContainer = svg.append("g")
+  var chartContainer = g.append("g")
     .attr("class", "chartContainer");
 
   var lineContainer = chartContainer.append("g")
       .attr("class", "lineContainer")
       .append("path")
-      .attr('vector-effect', 'non-scaling-stroke');
+      .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainer2 = chartContainer.append("g")
       .attr("class", "lineContainer2")
       .append("path")
-      .attr('vector-effect', 'non-scaling-stroke');
+      .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainers = [lineContainer, lineContainer2];
 
@@ -85,12 +86,12 @@ var DDTimelines = function(settings) {
   // Add the X Axis
   var axisX = d3.axisBottom(x)
     .tickSize(height);
-  var groupX = svg.append("g")
+  var groupX = g.append("g")
     .call(axisX);
 
   // Add the Y Axis
   var axisY = d3.axisLeft(y);
-  var groupY = svg.append("g")
+  var groupY = g.append("g")
     .call(axisY);
   var axisY2 = d3.axisRight(y2);
   var groupY2;
@@ -104,31 +105,40 @@ var DDTimelines = function(settings) {
 
   var translate = [0, 0];
 
-  var backgroundRect = svg.append("rect")
+  var focusRect = g.append("rect")
+    .attr("class", "focus")
     .attr("width", width)
     .attr("height", height)
     .attr("fill", "none")
     .attr("pointer-events", "all")
     .call(zoom);
 
-  backgroundRect.on('mousemove', onMouseMove);
-  backgroundRect.on('mouseout', onMouseOut);
+  focusRect.on('mousemove', onMouseMove);
+  focusRect.on('mouseout', onMouseOut);
 
   d3.selectAll('.button--zoom').on('click', onZoomClick);
 
-  var loading = d3.ddtimelines.spinner(svg, {'width':44, 'height':44, 'containerWidth':width, 'containerHeight':height});
+  var loading = d3.ddtimelines.spinner(svg, {"width":44, "height":44, "containerWidth": settings.size[0], "containerHeight": settings.size[1]});
   loading();
   loading.setVisible(false);
 
+  svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+  // svg.attr("clip-path", "url(#clip)");
+
   // Focus line
-  var focus = svg.append('g');
-  focus.append('line')
-    .attr('id', 'focusLineX')
-    .attr('class', 'focusLine')
-    .attr('pointer-events', 'none');
+  var focus = g.append("g");
+  focus.append("line")
+    .attr("id", "focusLineX")
+    .attr("class", "focusLine")
+    .attr("pointer-events", "none");
 
   // Zoom button
-  d3.selectAll('.button__zoom').on('click', onZoomClick);
+  d3.selectAll(".button__zoom").on("click", onZoomClick);
 
   loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
 
@@ -296,7 +306,7 @@ var DDTimelines = function(settings) {
     y2.domain(d3.extent(dataset.points, function(d) { return +d.value[1]; }));
 
     if(!groupY2) {
-      groupY2 = svg.append("g")
+      groupY2 = g.append("g")
        .attr("transform", "translate(" + width + ",0)")
        .call(axisY2);
     }
@@ -408,10 +418,10 @@ var DDTimelines = function(settings) {
       // labels.exit().remove();
 
       if(!isFirstTimeLoad) {
-        d3.select("svg").append("g").append("text")
+        g.append("g").append("text")
           .text(tl.label)
-          .attr("y", height/2 + margin.bottom + (i+1)*32)
-          .attr("x", margin.left - 30)
+          .attr("y", height/2 + margin.bottom + (i+1)*32 - 20)
+          .attr("x", margin.left - 84)
           .attr("font-family", "sans-serif")
           .attr("font-size", 12)
           .attr("text-anchor", "right");
@@ -443,10 +453,13 @@ var DDTimelines = function(settings) {
   function onZoomClick() {
     if(d3.event.target.id === 'zoom_in') {
       zoom.scaleBy(chartContainer, 2);
+      zoom.scaleBy(focusRect, 2);
     } else if(d3.event.target.id === 'zoom_out') {
       zoom.scaleBy(chartContainer, 0.5);
+      zoom.scaleBy(focusRect, 0.5);
     } else {
       chartContainer.call(zoom.transform, d3.zoomIdentity);
+      focusRect.call(zoom.transform, d3.zoomIdentity);
     }
   }
 
