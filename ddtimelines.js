@@ -262,6 +262,7 @@ var DDTimelines = function(settings) {
     bars.attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height/2 - y(d.value); });
 
+    groupX.call(axisX);
     groupY.call(axisY);
   }
 
@@ -284,6 +285,7 @@ var DDTimelines = function(settings) {
     //   .attr("font-size", "14px")
     //   .text("気温");
 
+    groupX.call(axisX);
     groupY.call(axisY);
   }
 
@@ -366,6 +368,7 @@ var DDTimelines = function(settings) {
       }
     });
 
+    groupX.call(axisX);
     groupY.call(axisY);
     groupY2.call(axisY2);
   }
@@ -415,6 +418,7 @@ var DDTimelines = function(settings) {
       }
     });
     isFirstTimeLoad = true;
+    groupX.call(axisX);
   }
 
   function onMouseMove() {
@@ -438,13 +442,10 @@ var DDTimelines = function(settings) {
 
   function onZoomClick() {
     if(d3.event.target.id === 'zoom_in') {
-      console.log("zoom in");
       zoom.scaleBy(chartContainer, 2);
     } else if(d3.event.target.id === 'zoom_out') {
-      console.log("zoom out");
       zoom.scaleBy(chartContainer, 0.5);
     } else {
-      console.log("zoom reset");
       chartContainer.call(zoom.transform, d3.zoomIdentity);
     }
   }
