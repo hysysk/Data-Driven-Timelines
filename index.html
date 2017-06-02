@@ -9,11 +9,7 @@
     <button class="button_zoom" id="zoom_out">-</button>
     <button class="button_zoom" id="zoom_reset">Reset</button>
     <div id="timeline"></div>
-    <script src="d3.min.js"></script>
-    <script src="barchart.js"></script>
-    <script src="timelinedata.js"></script>
-    <script src="spinner.js"></script>
-    <script src="ddtimelines.js"></script>
+    <script src="dist/ddtimelines.js"></script>
     <script>
       new DDTimelines({
         size: [600, 400],
@@ -21,7 +17,7 @@
         since: '2015-09-05T00:00:00',
         until: '2015-09-08T00:00:00',
         utcOffset: '+09:00',
-        zoom: 1,
+        zoom: [1, 12],
         timelines: [
           {
             type: 'combo',

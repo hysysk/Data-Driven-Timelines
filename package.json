@@ -4,11 +4,13 @@
   "description": "Multiple timeline visualization tool",
   "main": "index.js",
   "scripts": {
-    "prepublish": "rollup -c && uglifyjs d3.js -c -m -o d3.min.js"
+    "prepublish": "rollup -c && uglifyjs d3.js -c -m -o src/d3.min.js",
+    "concat": "concat -o dist/ddtimelines.js d3.js timelinedata.js spinner.js ddtimelines.js"
   },
   "author": "Yosuke Hayashi",
   "license": "MIT",
   "devDependencies": {
+    "concat": "^1.0.3",
     "d3": "^4.7.1",
     "d3-array": "^1.1.1",
     "d3-axis": "^1.0.5",
