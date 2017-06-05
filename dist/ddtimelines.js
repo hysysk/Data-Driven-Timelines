@@ -7561,29 +7561,31 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseMove() {
-    // var coords = d3.mouse(this);
-    // var posX = x.invert(coords[0]);
-    // var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
-    // var smaller = dataset.points[arrayIndex-1];
-    // var larger = dataset.points[arrayIndex];
-    // if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
-    //   var match = posX - smaller.at < larger.at - posX ? smaller : larger;
-    //   focusValue.text(match.value[0])
-    //     .attr("x", x(match.at))
-    //     .attr("y", y(match.value[0]))
-    //     .attr("font-family", "sans-serif")
-    //     .attr("font-size", 12);
-    //
-    //   focusValue2.text(match.value[1])
-    //     .attr("x", x(match.at))
-    //     .attr("y", y2(match.value[1]))
-    //     .attr("font-family", "sans-serif")
-    //     .attr("font-size", 12);
-    // }
-    //
-    // focus.select('#focusLineX')
-    //   .attr('x1', x(posX)).attr('y1', 0)
-    //   .attr('x2', x(posX)).attr('y2', height);
+    var transform = d3.zoomTransform(this);
+    var xt = transform.rescaleX(x);
+    var coords = d3.mouse(this);
+    var posX = xt.invert(coords[0]);
+    var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
+    var smaller = dataset.points[arrayIndex-1];
+    var larger = dataset.points[arrayIndex];
+    if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
+      var match = posX - smaller.at < larger.at - posX ? smaller : larger;
+      focusValue.text(match.value[0])
+        .attr("x", transform.applyX(x(match.at)))
+        .attr("y", y(match.value[0]))
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 12);
+
+      focusValue2.text(match.value[1])
+        .attr("x", transform.applyX(x(match.at)))
+        .attr("y", y2(match.value[1]))
+        .attr("font-family", "sans-serif")
+        .attr("font-size", 12);
+    }
+
+    focus.select('#focusLineX')
+      .attr('x1', transform.applyX(x(posX))).attr('y1', 0)
+      .attr('x2', transform.applyX(x(posX))).attr('y2', height);
   }
 
   function onMouseOut() {
