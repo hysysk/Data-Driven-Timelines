@@ -2,7 +2,12 @@
 複数ストリームのタイムライン表示ツール
 
 ## 開発手順
-- npm install
+- NPMモジュールをインストール
+  - npm install
+- D3.jsをビルド
+  - npm run prepublish
+- D3.jsと結合させてDDTimelines.jsを作る
+  - npm run concat
 
 ## 使い方
 ```
