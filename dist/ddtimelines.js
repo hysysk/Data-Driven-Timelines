@@ -7223,7 +7223,9 @@ var DDTimelines = function(settings) {
           .text(tl.labels[1]);
     } else if(tl.type == "duration") {
       tl.labels.forEach(function(text, i) {
-        g.append("g").append("text")
+        g.append("g")
+          .attr("class", "label")
+          .append("text")
           .text(text)
           .attr("y", height/2 + margin.bottom + (i+1)*32 - 20)
           .attr("x", margin.left - 84)
@@ -7279,12 +7281,20 @@ var DDTimelines = function(settings) {
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
 
-  var focusValue = g.append("text")
+  var focusPointValue = g.append("text")
     .attr("class", "point1");
 
-  var focusValue2 = g.append("text")
+  var focusPointValue2 = g.append("text")
     .attr("class", "point2");
 
+  var focusDurationValues = [];
+  settings.timelines.forEach(function(tl) {
+    if(tl.type == 'duration') {
+      tl.labels.forEach(function(d, i) {
+        focusDurationValues.push(g.append("text").attr("class", "duration" + i));
+      })
+    }
+  });
 
   var loading = d3.ddtimelines.spinner(svg, {"width":44, "height":44, "containerWidth": settings.size[0], "containerHeight": settings.size[1]});
   loading();
@@ -7385,12 +7395,6 @@ var DDTimelines = function(settings) {
       .defer(d3.json, url)
       .await(function(error, _timelines) {
         if(error) throw error;
-
-        // format the timeline data
-        _timelines.data.forEach(function(d) {
-          d.start_at = parseTime(d.start_at);
-          d.end_at = parseTime(d.end_at);
-        });
 
         dataset.addTimelines(_timelines.data);
         showTimelines();
@@ -7540,21 +7544,6 @@ var DDTimelines = function(settings) {
         .attr("class", function(d){return d.class;});
 
       rects.exit().remove();
-
-      // labels = timelineContainer.append("g")
-      //   .attr("transform", "translate(0," + i * 20 + ")")
-      //   .selectAll("text")
-      //   .data(timelineBands);
-      //
-      // labels.enter()
-      //   .append("text")
-      //   .text(function(d){return d.label;})
-      //   .attr("x", function(d){return d.start;})
-      //   .attr("y", function(d){return height/2 + margin.bottom + (i+1)*12;})
-      //   .attr("font-family", "sans-serif")
-      //   .attr("font-size", 12);
-      //
-      // labels.exit().remove();
     });
 
     groupX.call(axisX);
@@ -7570,18 +7559,36 @@ var DDTimelines = function(settings) {
     var larger = dataset.points[arrayIndex];
     if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
-      focusValue.text(match.value[0])
+      focusPointValue.text(match.value[0])
         .attr("x", transform.applyX(x(match.at)))
         .attr("y", y(match.value[0]))
         .attr("font-family", "sans-serif")
         .attr("font-size", 12);
 
-      focusValue2.text(match.value[1])
+      focusPointValue2.text(match.value[1])
         .attr("x", transform.applyX(x(match.at)))
         .attr("y", y2(match.value[1]))
         .attr("font-family", "sans-serif")
         .attr("font-size", 12);
     }
+
+    dataset.timelines.forEach(function(timeline, index) {
+      var isFocusOver = false;
+      timeline.duration.forEach(function(d, i) {
+        if(coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
+          focusDurationValues[index].text(d.label)
+            .attr("x", coords[0])
+            .attr("y", height/2 + index * 32 + 42)
+            .attr("font-family", "sans-serif")
+            .attr("font-size", 12);
+          isFocusOver = true;
+        } else {
+          if(!isFocusOver) {
+            focusDurationValues[index].text("");
+          }
+        }
+      });
+    });
 
     focus.select('#focusLineX')
       .attr('x1', transform.applyX(x(posX))).attr('y1', 0)
