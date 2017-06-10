@@ -42,3 +42,8 @@
   stroke: #000;
   stroke-dasharray: 3;
 }
+
+.checkedLine {
+  fill: none;
+  stroke: #333;
+}
