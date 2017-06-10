@@ -1,14 +1,19 @@
 var DDTimelines = function(settings) {
   // set the dimensions and margins
   var size = settings.size;
-  var margin = { top: 20, right: 50, bottom: 30, left: 50 };
+  var margin = {
+    top: 20,
+    right: 50,
+    bottom: 30,
+    left: 50
+  };
   var width = size[0] - margin.left - margin.right;
   var height = size[1] - margin.top - margin.bottom;
 
   // set the ranges
   var x = d3.scaleTime().range([0, width]);
-  var y = d3.scaleLinear().range([height/2, 0]);
-  var y2 = d3.scaleLinear().range([height/2, 0]);
+  var y = d3.scaleLinear().range([height / 2, 0]);
+  var y2 = d3.scaleLinear().range([height / 2, 0]);
 
   // dataset
   var dataset = d3.ddtimelines.timelineData();
@@ -19,36 +24,46 @@ var DDTimelines = function(settings) {
 
   // define the line
   var line = d3.line()
-      .defined(function(d) { return d.value[0] !== null; })
-      .x(function(d) { return x(d.at); })
-      .y(function(d) { return y(d.value); });
+    .defined(function(d) {
+      return d.value[0] !== null;
+    })
+    .x(function(d) {
+      return x(d.at);
+    })
+    .y(function(d) {
+      return y(d.value);
+    });
 
   var barWidth = 5;
 
   // define the timeline
   var timeline = d3.timeline()
-      .size([width, height])
-      .bandStart(function(d){return d.start_at;})
-      .bandEnd(function(d){return d.end_at;})
-      .maxBandHeight(20)
-      .padding(5)
-      .extent([settings.since, settings.until]);
+    .size([width, height])
+    .bandStart(function(d) {
+      return d.start_at;
+    })
+    .bandEnd(function(d) {
+      return d.end_at;
+    })
+    .maxBandHeight(20)
+    .padding(5)
+    .extent([settings.since, settings.until]);
 
-  var formatString = "%Y-%m-%dT%H:%M:%S"+ String(settings.utcOffset);
+  var formatString = "%Y-%m-%dT%H:%M:%S" + String(settings.utcOffset);
   var parseTime = d3.timeParse(formatString);
   var formatTime = d3.timeFormat(formatString);
 
-  var sinceDate = new Date(settings.since+settings.utcOffset);
-  var untilDate = new Date(settings.until+settings.utcOffset);
+  var sinceDate = new Date(settings.since + settings.utcOffset);
+  var untilDate = new Date(settings.until + settings.utcOffset);
   var duration = untilDate - sinceDate;
 
   // drawing area
   var svg = d3.select(settings.selector).append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom);
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
 
   var g = svg.append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   svg.append("defs").append("clipPath")
     .attr("id", "clip")
@@ -64,30 +79,30 @@ var DDTimelines = function(settings) {
     .attr("class", "chartContainer");
 
   var lineContainer = chartContainer.append("g")
-      .attr("class", "lineContainer")
-      .append("path")
-      .attr("vector-effect", "non-scaling-stroke");
+    .attr("class", "lineContainer")
+    .append("path")
+    .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainer2 = chartContainer.append("g")
-      .attr("class", "lineContainer2")
-      .append("path")
-      .attr("vector-effect", "non-scaling-stroke");
+    .attr("class", "lineContainer2")
+    .append("path")
+    .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainers = [lineContainer, lineContainer2];
 
   var barContainer = chartContainer.append("g")
-      .attr("class", "barContainer");
+    .attr("class", "barContainer");
 
   var barContainer2 = chartContainer.append("g")
-      .attr("class", "barContainer2");
+    .attr("class", "barContainer2");
 
   var barContainers = [barContainer, barContainer2];
 
   var timelineContainer = chartContainer.append("g")
-      .attr("class", "timelines");
+    .attr("class", "timelines");
 
   var overlay = g.append("g")
-      .attr("class", "overlay");
+    .attr("class", "overlay");
 
   var focusLines = [];
 
@@ -95,49 +110,49 @@ var DDTimelines = function(settings) {
 
   // label
   settings.timelines.forEach(function(tl) {
-    if(tl.type == "line" || tl.type == "bar") {
+    if (tl.type == "line" || tl.type == "bar") {
       g.append("g")
         .attr("class", "label")
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
-        .attr("x", 0 - height/4)
+        .attr("x", 0 - height / 4)
         .attr("dy", "1em")
         .attr("font-size", 12)
         .attr("font-family", "sans-serif")
         .attr("text-anchor", "middle")
         .text(tl.labels[0]);
-    } else if(tl.type == "combo") {
+    } else if (tl.type == "combo") {
       g.append("g")
         .attr("class", "label")
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
-        .attr("x", 0 - height/4)
+        .attr("x", 0 - height / 4)
         .attr("dy", "1em")
         .attr("font-size", 12)
         .attr("font-family", "sans-serif")
         .attr("text-anchor", "middle")
         .text(tl.labels[0]);
 
-        g.append("g")
-          .attr("class", "label")
-          .append("text")
-          .attr("transform", "rotate(90)")
-          .attr("x", height/4)
-          .attr("y", -width - margin.right)
-          .attr("dy", "1em")
-          .attr("font-size", 12)
-          .attr("font-family", "sans-serif")
-          .attr("text-anchor", "middle")
-          .text(tl.labels[1]);
-    } else if(tl.type == "duration") {
+      g.append("g")
+        .attr("class", "label")
+        .append("text")
+        .attr("transform", "rotate(90)")
+        .attr("x", height / 4)
+        .attr("y", -width - margin.right)
+        .attr("dy", "1em")
+        .attr("font-size", 12)
+        .attr("font-family", "sans-serif")
+        .attr("text-anchor", "middle")
+        .text(tl.labels[1]);
+    } else if (tl.type == "duration") {
       tl.labels.forEach(function(text, i) {
         g.append("g")
           .attr("class", "label")
           .append("text")
           .text(text)
-          .attr("y", height/2 + margin.bottom + (i+1)*32 - 20)
+          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
           .attr("x", margin.left - 84)
           .attr("font-family", "sans-serif")
           .attr("font-size", 12)
@@ -161,15 +176,20 @@ var DDTimelines = function(settings) {
   var axisY2 = d3.axisRight(y2);
   var groupY2;
 
-  var bisect = d3.bisector(function(d){return d.at;}).left;
+  var bisect = d3.bisector(function(d) {
+    return d.at;
+  }).left;
 
   // Zoom controller
   var zoom = d3.zoom()
-      .scaleExtent([1, 12])
-      .on("zoom", onZoom);
+    .scaleExtent([1, 12])
+    .on("zoom", onZoom);
 
   // Zoom button
   d3.selectAll(".button_zoom").on("click", onZoomClick);
+
+  // Export button
+  d3.selectAll(".button_export").on("click", onExportClick);
 
   var focusRect = g.append("rect")
     .attr("class", "focus")
@@ -203,7 +223,7 @@ var DDTimelines = function(settings) {
 
   var focusDurationValues = [];
   settings.timelines.forEach(function(tl) {
-    if(tl.type == 'duration') {
+    if (tl.type == 'duration') {
       tl.labels.forEach(function(d, i) {
         var label = g.append("text").attr("class", "duration" + i)
           .attr("pointer-events", "none");
@@ -212,11 +232,16 @@ var DDTimelines = function(settings) {
     }
   });
 
-  var loading = d3.ddtimelines.spinner(svg, {"width":44, "height":44, "containerWidth": settings.size[0], "containerHeight": settings.size[1]});
+  var loading = d3.ddtimelines.spinner(svg, {
+    "width": 44,
+    "height": 44,
+    "containerWidth": settings.size[0],
+    "containerHeight": settings.size[1]
+  });
   loading();
   loading.setVisible(false);
 
-  loadNewData(settings.since+settings.utcOffset, settings.until+settings.utcOffset);
+  loadNewData(settings.since + settings.utcOffset, settings.until + settings.utcOffset);
 
   function loadNewData(since, until) {
     settings.timelines.forEach(function(tl) {
@@ -245,7 +270,7 @@ var DDTimelines = function(settings) {
   }
 
   function buildUrl(endpoint, since, until, queries) {
-    var q = endpoint + "?since=" + encodeURIComponent(since) + "&until="+ encodeURIComponent(until);
+    var q = endpoint + "?since=" + encodeURIComponent(since) + "&until=" + encodeURIComponent(until);
     Object.keys(queries).forEach(function(key) {
       q += "&" + key + "=" + queries[key];
     });
@@ -257,7 +282,7 @@ var DDTimelines = function(settings) {
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
-        if(error) throw error;
+        if (error) throw error;
 
         // format the point data
         _points.data.forEach(function(d) {
@@ -275,7 +300,7 @@ var DDTimelines = function(settings) {
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
-        if(error) throw error;
+        if (error) throw error;
 
         // format the point data
         _points.data.forEach(function(d) {
@@ -293,7 +318,7 @@ var DDTimelines = function(settings) {
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _points) {
-        if(error) throw error;
+        if (error) throw error;
 
         _points.data.forEach(function(d) {
           d.at = parseTime(d.at);
@@ -310,7 +335,7 @@ var DDTimelines = function(settings) {
     d3.queue()
       .defer(d3.json, url)
       .await(function(error, _timelines) {
-        if(error) throw error;
+        if (error) throw error;
 
         dataset.addTimelines(_timelines.data);
         showTimelines();
@@ -321,10 +346,14 @@ var DDTimelines = function(settings) {
   function showBars() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return +d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) {
+      return +d.value;
+    }));
 
     var bars = barContainer.selectAll("rect")
-      .data(dataset.points, function(d) { return d.at; });
+      .data(dataset.points, function(d) {
+        return d.at;
+      });
 
     // exit
     bars.exit().remove()
@@ -332,14 +361,24 @@ var DDTimelines = function(settings) {
     // enter
     bars.enter()
       .append("rect")
-      .attr("x", function(d) { return x(d.at) - barWidth/2; })
+      .attr("x", function(d) {
+        return x(d.at) - barWidth / 2;
+      })
       .attr("width", barWidth)
-      .attr("y", function(d) { return y(d.value); })
-      .attr("height", function(d) { return height/2 - y(d.value); });
+      .attr("y", function(d) {
+        return y(d.value);
+      })
+      .attr("height", function(d) {
+        return height / 2 - y(d.value);
+      });
 
     // update
-    bars.attr("y", function(d) { return y(d.value); })
-      .attr("height", function(d) { return height/2 - y(d.value); });
+    bars.attr("y", function(d) {
+        return y(d.value);
+      })
+      .attr("height", function(d) {
+        return height / 2 - y(d.value);
+      });
 
     groupX.call(axisX);
     groupY.call(axisY);
@@ -348,7 +387,9 @@ var DDTimelines = function(settings) {
   function showLine() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return +d.value; }));
+    y.domain(d3.extent(dataset.points, function(d) {
+      return +d.value;
+    }));
 
     lineContainer.data([dataset.points])
       .attr("class", "line")
@@ -361,40 +402,48 @@ var DDTimelines = function(settings) {
   function showCombo() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) { return +d.value[0]; }));
-    y2.domain(d3.extent(dataset.points, function(d) { return +d.value[1]; }));
+    y.domain(d3.extent(dataset.points, function(d) {
+      return +d.value[0];
+    }));
+    y2.domain(d3.extent(dataset.points, function(d) {
+      return +d.value[1];
+    }));
 
-    if(!groupY2) {
+    if (!groupY2) {
       groupY2 = g.append("g")
-       .attr("transform", "translate(" + width + ",0)")
-       .call(axisY2);
+        .attr("transform", "translate(" + width + ",0)")
+        .call(axisY2);
     }
 
     combination.forEach(function(type, index) {
-      if(type == "line") {
+      if (type == "line") {
         lineContainers[index].data([dataset.points])
           .attr("class", "line")
           .attr("d", d3.line()
             .defined(function(d) {
-              if(index == 0) {
-                return d.value[0]!==null;
-              } else if(index == 1) {
-                return d.value[1]!==null;
+              if (index == 0) {
+                return d.value[0] !== null;
+              } else if (index == 1) {
+                return d.value[1] !== null;
               }
             })
-            .x(function(d){return x(d.at);})
-            .y(function(d){
-              if(index == 0) {
+            .x(function(d) {
+              return x(d.at);
+            })
+            .y(function(d) {
+              if (index == 0) {
                 return y(d.value[0]);
-              } else if(index == 1) {
+              } else if (index == 1) {
                 return y2(d.value[1]);
               }
             })
           );
-      } else if(type == "bar") {
+      } else if (type == "bar") {
         var bars = barContainers[index]
           .selectAll("rect")
-          .data(dataset.points, function(d) { return d.at; });
+          .data(dataset.points, function(d) {
+            return d.at;
+          });
 
         // exit
         bars.exit().remove();
@@ -402,36 +451,38 @@ var DDTimelines = function(settings) {
         // enter
         bars.enter()
           .append("rect")
-          .attr("x", function(d) { return x(d.at) - barWidth/2; })
+          .attr("x", function(d) {
+            return x(d.at) - barWidth / 2;
+          })
           .attr("width", barWidth)
           .attr("y", function(d) {
-            if(index == 0) {
+            if (index == 0) {
               return y(d.value[0]);
-            } else if(index == 1) {
+            } else if (index == 1) {
               return y2(d.value[1]);
             }
           })
           .attr("height", function(d) {
-            if(index == 0) {
-              return height/2 - y(d.value[0]);
-            } else if(index == 1) {
-              return height/2 - y2(d.value[1]);
+            if (index == 0) {
+              return height / 2 - y(d.value[0]);
+            } else if (index == 1) {
+              return height / 2 - y2(d.value[1]);
             }
           });
 
         // update
         bars.attr("y", function(d) {
-            if(index == 0) {
+            if (index == 0) {
               return y(d.value[0]);
-            } else if(index == 1) {
+            } else if (index == 1) {
               return y2(d.value[1]);
             }
           })
           .attr("height", function(d) {
-            if(index == 0) {
-              return height/2 - y(d.value[0]);
-            } else if(index == 1) {
-              return height/2 - y2(d.value[1]);
+            if (index == 0) {
+              return height / 2 - y(d.value[0]);
+            } else if (index == 1) {
+              return height / 2 - y2(d.value[1]);
             }
           });
       }
@@ -453,11 +504,21 @@ var DDTimelines = function(settings) {
       rects.enter()
         .append("rect")
         .merge(rects)
-        .attr("x", function(d){return d.start;})
-        .attr("y", function(d){return height/2 + margin.bottom + i*d.dy;})
-        .attr("height", function(d){return d.dy;})
-        .attr("width", function(d){return d.end - d.start;})
-        .attr("class", function(d){return d.class;});
+        .attr("x", function(d) {
+          return d.start;
+        })
+        .attr("y", function(d) {
+          return height / 2 + margin.bottom + i * d.dy;
+        })
+        .attr("height", function(d) {
+          return d.dy;
+        })
+        .attr("width", function(d) {
+          return d.end - d.start;
+        })
+        .attr("class", function(d) {
+          return d.class;
+        });
 
       rects.exit().remove();
     });
@@ -471,9 +532,9 @@ var DDTimelines = function(settings) {
     var coords = d3.mouse(this);
     var posX = xt.invert(coords[0]);
     var arrayIndex = bisect(dataset.points, posX, 0, dataset.points.length);
-    var smaller = dataset.points[arrayIndex-1];
+    var smaller = dataset.points[arrayIndex - 1];
     var larger = dataset.points[arrayIndex];
-    if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
+    if (typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
       focusPointValue.text(match.value[0])
         .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
@@ -491,15 +552,15 @@ var DDTimelines = function(settings) {
     dataset.timelines.forEach(function(timeline, index) {
       var isFocusOver = false;
       timeline.duration.forEach(function(d, i) {
-        if(coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
+        if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
             .attr("x", coords[0] + labelMarginLeft)
-            .attr("y", height/2 + index * 32 + 42)
+            .attr("y", height / 2 + index * 32 + 42)
             .attr("font-family", "sans-serif")
             .attr("font-size", 12);
           isFocusOver = true;
         } else {
-          if(!isFocusOver) {
+          if (!isFocusOver) {
             focusDurationValues[index].text("");
           }
         }
@@ -516,19 +577,72 @@ var DDTimelines = function(settings) {
   }
 
   function onExportClick() {
+    var doctype = '<?xml version="1.0" standalone="no"?>' +
+      '<?xml-stylesheet href="ddtimelines.css" type="text/css"?>' +
+      '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
 
+    var svgDomElement = d3.select('svg').node();
+
+    generateStyleDefs(svgDomElement);
+
+    // serialize our SVG XML to a string.
+    var source = (new XMLSerializer()).serializeToString(svgDomElement);
+
+    // create a file blob of our SVG.
+    var blob = new Blob([doctype + source], {
+      type: 'image/svg+xml;charset=utf-8'
+    });
+
+    var url = window.URL.createObjectURL(blob);
+
+    if (d3.event.target.id == "export_png") {
+      // Put the svg into an image tag so that the Canvas element can read it in.
+      var img = d3.select('body').append('img')
+        .attr('width', size[0])
+        .attr('height', size[1])
+        .node();
+      img.src = url;
+    }
+  }
+
+  function generateStyleDefs(svgDomElement) {
+    var styleDefs = "";
+    var sheets = document.styleSheets;
+    for (var i = 0; i < sheets.length; i++) {
+      var rules = sheets[i].cssRules;
+      for (var j = 0; j < rules.length; j++) {
+        var rule = rules[j];
+        if (rule.style) {
+          var selectorText = rule.selectorText;
+          var elems = svgDomElement.querySelectorAll(selectorText);
+
+          if (elems.length) {
+            styleDefs += selectorText + " { " + rule.style.cssText + " }\n";
+          }
+        }
+      }
+    }
+
+    var s = document.createElement('style');
+    s.setAttribute('type', 'text/css');
+    s.innerHTML = styleDefs;
+
+    var defs = document.createElement('defs');
+    defs.appendChild(s);
+    svgDomElement.insertBefore(defs, svgDomElement.firstChild);
   }
 
   function onZoomClick() {
-    if(d3.event.target.id === 'zoom_in') {
+    if (d3.event.target.id === 'zoom_in') {
       zoom.scaleBy(chartContainer, 2);
       zoom.scaleBy(focusRect, 2);
-    } else if(d3.event.target.id === 'zoom_out') {
+    } else if (d3.event.target.id === 'zoom_out') {
       zoom.scaleBy(chartContainer, 0.5);
       zoom.scaleBy(focusRect, 0.5);
+    } else if (d3.event.target.id === 'zoom_reset') {
+      chartContainer.call(zoom.transform, d3.zoomIdentity);
+      focusRect.call(zoom.transform, d3.zoomIdentity);
     }
-    chartContainer.call(zoom.transform, d3.zoomIdentity);
-    focusRect.call(zoom.transform, d3.zoomIdentity);
   }
 
   function onZoom() {
@@ -538,19 +652,19 @@ var DDTimelines = function(settings) {
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
-    if(Math.ceil(((t.x - width/2)/width) / t.k) == -forwardIndex) {
-      newSinceDate = new Date(sinceDate.getTime() + duration*forwardIndex);
+    if (Math.ceil(((t.x - width / 2) / width) / t.k) == -forwardIndex) {
+      newSinceDate = new Date(sinceDate.getTime() + duration * forwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
-      newUntilDate = new Date(untilDate.getTime() + duration*forwardIndex);
+      newUntilDate = new Date(untilDate.getTime() + duration * forwardIndex);
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
       forwardIndex++;
-    } else if(Math.floor(((t.x + width/2)/width) / t.k) == backwardIndex) {
-      newSinceDate = new Date(sinceDate.getTime() - duration*backwardIndex);
+    } else if (Math.floor(((t.x + width / 2) / width) / t.k) == backwardIndex) {
+      newSinceDate = new Date(sinceDate.getTime() - duration * backwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
-      newUntilDate = new Date(untilDate.getTime() - duration*backwardIndex);
+      newUntilDate = new Date(untilDate.getTime() - duration * backwardIndex);
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
       backwardIndex++;

@@ -8,6 +8,7 @@
     <button class="button_zoom" id="zoom_in">+</button>
     <button class="button_zoom" id="zoom_out">-</button>
     <button class="button_zoom" id="zoom_reset">Reset</button>
+    <button class="button_export" id="export_png">Export PNG</button>
     <div id="timeline"></div>
     <script src="d3.min.js"></script>
     <script src="spinner.js"></script>
@@ -16,28 +17,28 @@
     <script>
       new DDTimelines({
         size: [600, 400],
-        selector: '#timeline',
-        since: '2015-09-05T00:00:00',
-        until: '2015-09-08T00:00:00',
-        utcOffset: '+09:00',
+        selector: "#timeline",
+        since: "2015-09-05T00:00:00",
+        until: "2015-09-08T00:00:00",
+        utcOffset: "+09:00",
         zoom: [1, 12],
         timelines: [
           {
-            type: 'combo',
-            combination: ['bar', 'line'],
-            url: 'http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points',
+            type: "combo",
+            combination: ["bar", "line"],
+            url: "http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points",
             queries: {
-              id: '34216',
-              var: 'prec,temp'
+              id: "34216",
+              var: "prec,temp"
             },
             labels: ["降水量","気温"]
           },
           {
-            type: 'duration',
-            url: 'http://agora.ex.nii.ac.jp/timeline/v1/jmaxml-alert/durations',
+            type: "duration",
+            url: "http://agora.ex.nii.ac.jp/timeline/v1/jmaxml-alert/durations",
             queries: {
-              id: '040000',
-              var: 'wind,rain'
+              id: "040000",
+              var: "wind,rain"
             },
             labels: ["強風","大雨"]
           }
