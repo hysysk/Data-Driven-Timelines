@@ -7181,6 +7181,11 @@ var DDTimelines = function(settings) {
   var timelineContainer = chartContainer.append("g")
       .attr("class", "timelines");
 
+  var overlay = g.append("g")
+      .attr("class", "overlay");
+
+  var focusLines = [];
+
   var labels;
 
   // label
@@ -7270,7 +7275,7 @@ var DDTimelines = function(settings) {
     .call(zoom);
 
   focusRect.on('mousemove', onMouseMove);
-  focusRect.on('mouseout', onMouseOut);
+  focusRect.on('click', onMouseClick);
 
   d3.selectAll('.button--zoom').on('click', onZoomClick);
 
@@ -7281,17 +7286,23 @@ var DDTimelines = function(settings) {
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
 
+  var labelMarginLeft = 4;
+
   var focusPointValue = g.append("text")
-    .attr("class", "point1");
+    .attr("class", "point1")
+    .attr("pointer-events", "none");
 
   var focusPointValue2 = g.append("text")
-    .attr("class", "point2");
+    .attr("class", "point2")
+    .attr("pointer-events", "none");
 
   var focusDurationValues = [];
   settings.timelines.forEach(function(tl) {
     if(tl.type == 'duration') {
       tl.labels.forEach(function(d, i) {
-        focusDurationValues.push(g.append("text").attr("class", "duration" + i));
+        var label = g.append("text").attr("class", "duration" + i)
+          .attr("pointer-events", "none");
+        focusDurationValues.push(label);
       })
     }
   });
@@ -7560,13 +7571,13 @@ var DDTimelines = function(settings) {
     if(typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
       focusPointValue.text(match.value[0])
-        .attr("x", transform.applyX(x(match.at)))
+        .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
         .attr("y", y(match.value[0]))
         .attr("font-family", "sans-serif")
         .attr("font-size", 12);
 
       focusPointValue2.text(match.value[1])
-        .attr("x", transform.applyX(x(match.at)))
+        .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
         .attr("y", y2(match.value[1]))
         .attr("font-family", "sans-serif")
         .attr("font-size", 12);
@@ -7577,7 +7588,7 @@ var DDTimelines = function(settings) {
       timeline.duration.forEach(function(d, i) {
         if(coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
-            .attr("x", coords[0])
+            .attr("x", coords[0] + labelMarginLeft)
             .attr("y", height/2 + index * 32 + 42)
             .attr("font-family", "sans-serif")
             .attr("font-size", 12);
@@ -7591,11 +7602,15 @@ var DDTimelines = function(settings) {
     });
 
     focus.select('#focusLineX')
-      .attr('x1', transform.applyX(x(posX))).attr('y1', 0)
-      .attr('x2', transform.applyX(x(posX))).attr('y2', height);
+      .attr("x1", transform.applyX(x(posX))).attr('y1', 0)
+      .attr("x2", transform.applyX(x(posX))).attr('y2', height);
   }
 
-  function onMouseOut() {
+  function onMouseClick() {
+
+  }
+
+  function onExportClick() {
 
   }
 
@@ -7606,10 +7621,9 @@ var DDTimelines = function(settings) {
     } else if(d3.event.target.id === 'zoom_out') {
       zoom.scaleBy(chartContainer, 0.5);
       zoom.scaleBy(focusRect, 0.5);
-    } else {
-      chartContainer.call(zoom.transform, d3.zoomIdentity);
-      focusRect.call(zoom.transform, d3.zoomIdentity);
     }
+    chartContainer.call(zoom.transform, d3.zoomIdentity);
+    focusRect.call(zoom.transform, d3.zoomIdentity);
   }
 
   function onZoom() {
