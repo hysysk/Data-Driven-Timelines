@@ -104,9 +104,7 @@ var DDTimelines = function(settings) {
   var overlay = g.append("g")
     .attr("class", "overlay");
 
-  var focusLines = [];
-
-  var labels;
+  var combination;
 
   // label
   settings.timelines.forEach(function(tl) {
@@ -161,8 +159,6 @@ var DDTimelines = function(settings) {
     }
   });
 
-  var combination;
-
   // Add the X Axis
   var axisX = d3.axisBottom(x)
     .tickSize(height);
@@ -176,6 +172,7 @@ var DDTimelines = function(settings) {
   var axisY2 = d3.axisRight(y2);
   var groupY2;
 
+  // UI
   var bisect = d3.bisector(function(d) {
     return d.at;
   }).left;
@@ -190,7 +187,7 @@ var DDTimelines = function(settings) {
 
   // Export button
   d3.selectAll(".button_export").on("click", onExportClick);
-
+  
   var focusRect = g.append("rect")
     .attr("class", "focus")
     .attr("width", width)
@@ -229,6 +226,8 @@ var DDTimelines = function(settings) {
       })
     }
   });
+
+  var focusLines = [];
 
   var loading = d3.ddtimelines.spinner(svg, {
     "width": 44,
