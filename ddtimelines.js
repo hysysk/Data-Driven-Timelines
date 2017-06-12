@@ -202,8 +202,6 @@ var DDTimelines = function(settings) {
   focusRect.on('mousemove', onMouseMove);
   focusRect.on('click', onMouseClick);
 
-  d3.selectAll('.button--zoom').on('click', onZoomClick);
-
   // Focus line
   var focus = g.append("g");
   focus.append("line")
@@ -588,21 +586,44 @@ var DDTimelines = function(settings) {
     // serialize our SVG XML to a string.
     var source = (new XMLSerializer()).serializeToString(svgDomElement);
 
-    // create a file blob of our SVG.
-    var blob = new Blob([doctype + source], {
-      type: 'image/svg+xml;charset=utf-8'
-    });
-
-    var url = window.URL.createObjectURL(blob);
-
     if (d3.event.target.id == "export_png") {
-      // Put the svg into an image tag so that the Canvas element can read it in.
-      var img = d3.select('body').append('img')
-        .attr('width', size[0])
-        .attr('height', size[1])
-        .node();
-      img.src = url;
+      var dataUri = "data:image/svg+xml;utf8," + encodeURIComponent(source);
+      var canvas = d3.select("body").append("canvas")
+        .attr("id", "drawing")
+        .attr("width", size[0])
+        .attr("height", size[1])
+        .style("display", "none");
+
+      var context = canvas.node().getContext("2d");
+      var img = new Image();
+      img.src = dataUri;
+
+      img.onload = function() {
+        context.drawImage(img, 0, 0);
+        var dataUrl = canvas.node().toDataURL("image/png");
+        download(dataUrl, "ddtimelines.png");
+      };
+    } else if (d3.event.target.id == "export_svg") {
+      var blob = new Blob([doctype + source], {
+        type: "image/svg+xml;charset=utf-8"
+      });
+      var url = window.URL.createObjectURL(blob);
+      download(url, "ddtimelines.svg");
     }
+  }
+
+  function download(url, fileName) {
+    var a = d3.select("body").append("a");
+    a.attr("class", "downloadLink")
+      .attr("download", fileName)
+      .attr("href", url)
+      .text("test")
+      .style("display", "none");
+    a.node().click();
+    setTimeout(function() {
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    }, 10);
   }
 
   function generateStyleDefs(svgDomElement) {
