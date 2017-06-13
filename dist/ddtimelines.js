@@ -7115,8 +7115,8 @@ var DDTimelines = function(settings) {
 
   // set the ranges
   var x = d3.scaleTime().range([0, width]);
-  var y = d3.scaleLinear().range([height / 2, 0]);
-  var y2 = d3.scaleLinear().range([height / 2, 0]);
+  var y0 = d3.scaleLinear().range([height / 2, 0]);
+  var y1 = d3.scaleLinear().range([height / 2, 0]);
 
   // dataset
   var dataset = d3.ddtimelines.timelineData();
@@ -7134,7 +7134,7 @@ var DDTimelines = function(settings) {
       return x(d.at);
     })
     .y(function(d) {
-      return y(d.value);
+      return y0(d.value);
     });
 
   var barWidth = 5;
@@ -7182,24 +7182,24 @@ var DDTimelines = function(settings) {
     .attr("class", "chartContainer");
 
   var lineContainer = chartContainer.append("g")
-    .attr("class", "lineContainer")
+    .attr("class", "lineContainer0")
     .append("path")
     .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainer2 = chartContainer.append("g")
-    .attr("class", "lineContainer2")
+    .attr("class", "lineContainer1")
     .append("path")
     .attr("vector-effect", "non-scaling-stroke");
 
   var lineContainers = [lineContainer, lineContainer2];
 
-  var barContainer = chartContainer.append("g")
-    .attr("class", "barContainer");
+  var barContainer0 = chartContainer.append("g")
+    .attr("class", "barContainer0");
 
-  var barContainer2 = chartContainer.append("g")
-    .attr("class", "barContainer2");
+  var barContainer1 = chartContainer.append("g")
+    .attr("class", "barContainer1");
 
-  var barContainers = [barContainer, barContainer2];
+  var barContainers = [barContainer0, barContainer1];
 
   var timelineContainer = chartContainer.append("g")
     .attr("class", "timelines");
@@ -7212,57 +7212,11 @@ var DDTimelines = function(settings) {
   var combination;
 
   // label
-  settings.timelines.forEach(function(tl) {
-    if (tl.type == "line" || tl.type == "bar") {
-      g.append("g")
-        .attr("class", "label")
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - height / 4)
-        .attr("dy", "1em")
-        .attr("font-size", 12)
-        .attr("font-family", "sans-serif")
-        .attr("text-anchor", "middle")
-        .text(tl.labels[0]);
-    } else if (tl.type == "combo") {
-      g.append("g")
-        .attr("class", "label")
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x", 0 - height / 4)
-        .attr("dy", "1em")
-        .attr("font-size", 12)
-        .attr("font-family", "sans-serif")
-        .attr("text-anchor", "middle")
-        .text(tl.labels[0]);
-
-      g.append("g")
-        .attr("class", "label")
-        .append("text")
-        .attr("transform", "rotate(90)")
-        .attr("x", height / 4)
-        .attr("y", -width - margin.right)
-        .attr("dy", "1em")
-        .attr("font-size", 12)
-        .attr("font-family", "sans-serif")
-        .attr("text-anchor", "middle")
-        .text(tl.labels[1]);
-    } else if (tl.type == "duration") {
-      tl.labels.forEach(function(text, i) {
-        g.append("g")
-          .attr("class", "label")
-          .append("text")
-          .text(text)
-          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
-          .attr("x", margin.left - 84)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", 12)
-          .attr("text-anchor", "right");
-      });
-    }
-  });
+  var labelContainer = g.append("g")
+    .attr("class", "labelContainer")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 12)
+    .attr("text-anchor", "middle");
 
   // Add the X Axis
   var axisX = d3.axisBottom(x)
@@ -7271,11 +7225,11 @@ var DDTimelines = function(settings) {
     .call(axisX);
 
   // Add the Y Axis
-  var axisY = d3.axisLeft(y);
-  var groupY = g.append("g")
-    .call(axisY);
-  var axisY2 = d3.axisRight(y2);
-  var groupY2;
+  var axisY0 = d3.axisLeft(y0);
+  var groupY0 = g.append("g")
+    .call(axisY0);
+  var axisY1 = d3.axisRight(y1);
+  var groupY1;
 
   // UI
   var bisect = d3.bisector(function(d) {
@@ -7293,6 +7247,97 @@ var DDTimelines = function(settings) {
   // Export button
   d3.selectAll(".button_export").on("click", onExportClick);
 
+  // Focus view
+  var focusView = g.append("g")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 12)
+    .attr("class", "focusView");
+
+  focusView.append("line")
+    .attr("id", "focusLineX")
+    .attr("class", "focusLine")
+    .attr("pointer-events", "none");
+
+  var labelMarginLeft = 8;
+
+  var focusTime = focusView.append("text")
+    .attr("class", "time")
+    .attr("pointer-events", "none")
+    .attr("text-anchor", "left");
+
+  var focusPoints = [];
+  var focusPointValues = [];
+  var focusDurationValues = [];
+
+  settings.timelines.forEach(function(tl) {
+    if (tl.type == 'line' || tl.type == 'bar') {
+      labelContainer.append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - height / 4)
+        .attr("dy", "1em")
+        .text(tl.labels[0]);
+
+      focusPoints[0] = focusView.append("circle")
+        .attr("r", 3)
+        .attr("class", "focusPoint");
+
+      focusPointValues[0] = focusView.append("text")
+        .attr("class", "point1")
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "left");
+    } else if (tl.type == 'combo') {
+      labelContainer.append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - height / 4)
+        .attr("dy", "1em")
+        .text(tl.labels[0]);
+
+      labelContainer.append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(90)")
+        .attr("x", height / 4)
+        .attr("y", -width - margin.right)
+        .attr("dy", "1em")
+        .text(tl.labels[1]);
+
+      focusPoints[0] = focusView.append("circle")
+        .attr("r", 3)
+        .attr("class", "focusPoint");
+
+      focusPoints[1] = focusView.append("circle")
+        .attr("r", 3)
+        .attr("class", "focusPoint");
+
+      focusPointValues[0] = focusView.append("text")
+        .attr("class", "point0")
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "left");
+
+      focusPointValues[1] = focusView.append("text")
+        .attr("class", "point1")
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "left");
+    } else if (tl.type == 'duration') {
+      tl.labels.forEach(function(d, i) {
+        labelContainer.append("text")
+          .attr("class", "label")
+          .text(d)
+          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
+          .attr("x", margin.left - 84)
+          .attr("text-anchor", "right");
+
+        var label = focusView.append("text").attr("class", "duration" + i)
+          .attr("pointer-events", "none")
+          .attr("text-anchor", "left");
+        focusDurationValues.push(label);
+      })
+    }
+  });
+
   var focusRect = g.append("rect")
     .attr("class", "focus")
     .attr("width", width)
@@ -7303,34 +7348,6 @@ var DDTimelines = function(settings) {
 
   focusRect.on('mousemove', onMouseMove);
   focusRect.on('click', onMouseClick);
-
-  // Focus line
-  var focus = g.append("g");
-  focus.append("line")
-    .attr("id", "focusLineX")
-    .attr("class", "focusLine")
-    .attr("pointer-events", "none");
-
-  var labelMarginLeft = 4;
-
-  var focusPointValue = g.append("text")
-    .attr("class", "point1")
-    .attr("pointer-events", "none");
-
-  var focusPointValue2 = g.append("text")
-    .attr("class", "point2")
-    .attr("pointer-events", "none");
-
-  var focusDurationValues = [];
-  settings.timelines.forEach(function(tl) {
-    if (tl.type == 'duration') {
-      tl.labels.forEach(function(d, i) {
-        var label = g.append("text").attr("class", "duration" + i)
-          .attr("pointer-events", "none");
-        focusDurationValues.push(label);
-      })
-    }
-  });
 
   var focusLines = [];
 
@@ -7468,22 +7485,22 @@ var DDTimelines = function(settings) {
       })
       .attr("width", barWidth)
       .attr("y", function(d) {
-        return y(d.value);
+        return y0(d.value);
       })
       .attr("height", function(d) {
-        return height / 2 - y(d.value);
+        return height / 2 - y0(d.value);
       });
 
     // update
     bars.attr("y", function(d) {
-        return y(d.value);
+        return y0(d.value);
       })
       .attr("height", function(d) {
-        return height / 2 - y(d.value);
+        return height / 2 - y0(d.value);
       });
 
     groupX.call(axisX);
-    groupY.call(axisY);
+    groupY0.call(axisY);
   }
 
   function showLine() {
@@ -7498,23 +7515,23 @@ var DDTimelines = function(settings) {
       .attr("d", line);
 
     groupX.call(axisX);
-    groupY.call(axisY);
+    groupY0.call(axisY);
   }
 
   function showCombo() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) {
+    y0.domain(d3.extent(dataset.points, function(d) {
       return +d.value[0];
     }));
-    y2.domain(d3.extent(dataset.points, function(d) {
+    y1.domain(d3.extent(dataset.points, function(d) {
       return +d.value[1];
     }));
 
-    if (!groupY2) {
-      groupY2 = g.append("g")
+    if (!groupY1) {
+      groupY1 = g.append("g")
         .attr("transform", "translate(" + width + ",0)")
-        .call(axisY2);
+        .call(axisY1);
     }
 
     combination.forEach(function(type, index) {
@@ -7534,9 +7551,9 @@ var DDTimelines = function(settings) {
             })
             .y(function(d) {
               if (index == 0) {
-                return y(d.value[0]);
+                return y0(d.value[0]);
               } else if (index == 1) {
-                return y2(d.value[1]);
+                return y1(d.value[1]);
               }
             })
           );
@@ -7559,47 +7576,47 @@ var DDTimelines = function(settings) {
           .attr("width", barWidth)
           .attr("y", function(d) {
             if (index == 0) {
-              return y(d.value[0]);
+              return y0(d.value[0]);
             } else if (index == 1) {
-              return y2(d.value[1]);
+              return y1(d.value[1]);
             }
           })
           .attr("height", function(d) {
             if (index == 0) {
-              return height / 2 - y(d.value[0]);
+              return height / 2 - y0(d.value[0]);
             } else if (index == 1) {
-              return height / 2 - y2(d.value[1]);
+              return height / 2 - y1(d.value[1]);
             }
           });
 
         // update
         bars.attr("y", function(d) {
             if (index == 0) {
-              return y(d.value[0]);
+              return y0(d.value[0]);
             } else if (index == 1) {
-              return y2(d.value[1]);
+              return y1(d.value[1]);
             }
           })
           .attr("height", function(d) {
             if (index == 0) {
-              return height / 2 - y(d.value[0]);
+              return height / 2 - y0(d.value[0]);
             } else if (index == 1) {
-              return height / 2 - y2(d.value[1]);
+              return height / 2 - y1(d.value[1]);
             }
           });
       }
     });
 
     groupX.call(axisX);
-    groupY.call(axisY);
-    groupY2.call(axisY2);
+    groupY0.call(axisY0);
+    groupY1.call(axisY1);
   }
 
   function showTimelines() {
     dataset.timelines.forEach(function(tl, i) {
       var timelineBands = timeline(tl);
 
-      if(!tracks[i]) {
+      if (!tracks[i]) {
         tracks[i] = timelineContainer.append("g")
           .attr("transform", "translate(0," + i * 17 + ")");
       }
@@ -7642,17 +7659,20 @@ var DDTimelines = function(settings) {
     var larger = dataset.points[arrayIndex];
     if (typeof smaller !== 'undefined' && typeof larger !== 'undefined') {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
-      focusPointValue.text(match.value[0])
-        .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
-        .attr("y", y(match.value[0]))
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 12);
 
-      focusPointValue2.text(match.value[1])
+      focusPointValues[0].text(match.value[0])
         .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
-        .attr("y", y2(match.value[1]))
-        .attr("font-family", "sans-serif")
-        .attr("font-size", 12);
+        .attr("y", y0(match.value[0]));
+
+      focusPoints[0].attr("transform", "translate(" + transform.applyX(x(match.at)) + "," + y0(match.value[0]) + ")");
+
+      if (focusPoints.length == 2) {
+        focusPointValues[1].text(match.value[1])
+          .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
+          .attr("y", y1(match.value[1]));
+
+        focusPoints[1].attr("transform", "translate(" + transform.applyX(x(match.at)) + "," + y1(match.value[1]) + ")");
+      }
     }
 
     dataset.timelines.forEach(function(timeline, index) {
@@ -7661,9 +7681,7 @@ var DDTimelines = function(settings) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
             .attr("x", coords[0] + labelMarginLeft)
-            .attr("y", height / 2 + index * 32 + 42)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", 12);
+            .attr("y", height / 2 + index * 32 + 42);
           isFocusOver = true;
         } else {
           if (!isFocusOver) {
@@ -7673,9 +7691,13 @@ var DDTimelines = function(settings) {
       });
     });
 
-    focus.select('#focusLineX')
-      .attr("x1", transform.applyX(x(posX))).attr('y1', 0)
-      .attr("x2", transform.applyX(x(posX))).attr('y2', height);
+    focusTime.text(formatTime(posX))
+      .attr("x", coords[0] + labelMarginLeft)
+      .attr("y", 14);
+
+    focusView.select('#focusLineX')
+      .attr("x1", coords[0]).attr('y1', 0)
+      .attr("x2", coords[0]).attr('y2', height);
   }
 
   function onMouseClick() {

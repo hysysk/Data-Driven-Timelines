@@ -2,28 +2,28 @@
   opacity: 0.2;
 }
 
-.lineContainer .line {
+.lineContainer0 .line {
   fill: none;
   stroke: #FF1493;
   stroke-width: 2px;
 }
 
-.lineContainer2 .line {
+.lineContainer1 .line {
   fill: none;
   stroke: #005AFF;
   stroke-width: 2px;
 }
 
-.barContainer {
-  fill: #2ECFFF;
+.barContainer0 {
+  fill: #2ecfff;
 }
 
-.barContainer2 {
-  fill: #FFE100;
+.barContainer1 {
+  fill: #ffe100;
 }
 
 .level2 {
-  fill: #ccc;
+  fill: #eaeaea;
   stroke: none;
 }
 
@@ -33,7 +33,7 @@
 }
 
 .level5 {
-  fill: #f00;
+  fill: #f3c;
   stroke: none;
 }
 
@@ -41,6 +41,11 @@
   fill: none;
   stroke: #000;
   stroke-dasharray: 3;
+}
+
+.focusPoint {
+  fill: none;
+  stroke: #000;
 }
 
 .checkedLine {
