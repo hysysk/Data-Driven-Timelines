@@ -101,6 +101,8 @@ var DDTimelines = function(settings) {
   var timelineContainer = chartContainer.append("g")
     .attr("class", "timelines");
 
+  var tracks = [];
+
   var overlay = g.append("g")
     .attr("class", "overlay");
 
@@ -187,7 +189,7 @@ var DDTimelines = function(settings) {
 
   // Export button
   d3.selectAll(".button_export").on("click", onExportClick);
-  
+
   var focusRect = g.append("rect")
     .attr("class", "focus")
     .attr("width", width)
@@ -492,10 +494,14 @@ var DDTimelines = function(settings) {
 
   function showTimelines() {
     dataset.timelines.forEach(function(tl, i) {
-      var timelineBands = timeline(tl.duration);
-      var rects = timelineContainer.append("g")
-        .attr("transform", "translate(0," + i * 17 + ")")
-        .selectAll("rect")
+      var timelineBands = timeline(tl);
+
+      if(!tracks[i]) {
+        tracks[i] = timelineContainer.append("g")
+          .attr("transform", "translate(0," + i * 17 + ")");
+      }
+
+      var rects = tracks[i].selectAll("rect")
         .data(timelineBands);
 
       rects.enter()
@@ -548,7 +554,7 @@ var DDTimelines = function(settings) {
 
     dataset.timelines.forEach(function(timeline, index) {
       var isFocusOver = false;
-      timeline.duration.forEach(function(d, i) {
+      timeline.forEach(function(d, i) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
             .attr("x", coords[0] + labelMarginLeft)
