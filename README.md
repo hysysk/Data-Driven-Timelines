@@ -6,7 +6,8 @@
   - npm install
 - D3.jsをビルド
   - npm run prepublish
-- D3.jsと結合させてDDTimelines.jsを作る
+- D3.jと結合したddtimelines.jsを作る。distフォルダに出力される。
+  - mkdir dist
   - npm run concat
 
 ## 使い方
