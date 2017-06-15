@@ -11,6 +11,7 @@
   - npm run concat
 
 ## 使い方
+- 結合後のddtimelines.jsとddtimelines.cssを読み込み、下記のようにDDTimelinesのインスタンスを作る。
 ```
 new DDTimelines({
   size: [600, 400], // 画面サイズ
