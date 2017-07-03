@@ -34,7 +34,7 @@ var DDTimelines = function(settings) {
       return y0(d.value);
     });
 
-  var barWidth = 5;
+  var barWidth;
 
   // define the timeline
   var timeline = d3.timeline()
@@ -398,6 +398,11 @@ var DDTimelines = function(settings) {
     bars.exit().remove()
 
     // enter
+
+    if(!barWidth) {
+      barWidth = width/dataset.points.length;
+    }
+
     bars.enter()
       .append("rect")
       .attr("x", function(d) {
@@ -478,6 +483,10 @@ var DDTimelines = function(settings) {
             })
           );
       } else if (type == "bar") {
+        if(!barWidth) {
+          barWidth = width/dataset.points.length;
+        }
+
         var bars = barContainers[index]
           .selectAll("rect")
           .data(dataset.points, function(d) {
