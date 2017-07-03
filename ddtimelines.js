@@ -139,9 +139,32 @@ var DDTimelines = function(settings) {
     .on("zoom", onZoom);
 
   // Zoom button
-  d3.selectAll(".button_zoom").on("click", onZoomClick);
+  d3.select("body").append("button")
+    .classed("button_zoom", true)
+    .attr("id", "zoom_in")
+    .text("+")
+    .on("click", onZoomClick);
+
+    d3.select("body").append("button")
+      .classed("button_zoom", true)
+      .attr("id", "zoom_out")
+      .text("-")
+      .on("click", onZoomClick);
 
   // Export button
+  d3.select("body").append("button")
+    .classed("button_export", true)
+    .attr("id", "export_svg")
+    .text("Export SVG")
+    .on("click", onExportClick);
+
+  d3.select("body").append("button")
+    .classed("button_export", true)
+    .attr("id", "export_png")
+    .text("Export PNG")
+    .on("click", onExportClick);
+
+
   d3.selectAll(".button_export").on("click", onExportClick);
 
   // Focus view
