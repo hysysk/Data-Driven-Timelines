@@ -385,24 +385,21 @@ var DDTimelines = function(settings) {
   function showBars() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) {
+    y0.domain(d3.extent(dataset.points, function(d) {
       return +d.value;
     }));
 
-    var bars = barContainer.selectAll("rect")
+    var bars = barContainer0.selectAll("rect")
       .data(dataset.points, function(d) {
         return d.at;
       });
 
-    // exit
-    bars.exit().remove()
-
     // enter
-
     if(!barWidth) {
       barWidth = width/dataset.points.length;
     }
 
+    // update
     bars.enter()
       .append("rect")
       .attr("x", function(d) {
@@ -416,16 +413,11 @@ var DDTimelines = function(settings) {
         return height / 2 - y0(d.value);
       });
 
-    // update
-    bars.attr("y", function(d) {
-        return y0(d.value);
-      })
-      .attr("height", function(d) {
-        return height / 2 - y0(d.value);
-      });
+    // exit
+    bars.exit().remove();
 
     groupX.call(axisX);
-    groupY0.call(axisY);
+    groupY0.call(axisY0);
   }
 
   function showLine() {
@@ -493,9 +485,6 @@ var DDTimelines = function(settings) {
             return d.at;
           });
 
-        // exit
-        bars.exit().remove();
-
         // enter
         bars.enter()
           .append("rect")
@@ -533,6 +522,9 @@ var DDTimelines = function(settings) {
               return height / 2 - y1(d.value[1]);
             }
           });
+
+        // exit
+        bars.exit().remove();
       }
     });
 
