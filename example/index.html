@@ -6,7 +6,7 @@
 </head>
 <body>
     <div id="timeline"></div>
-    <script src="../dist/ddtimelines.min.js"></script>
+    <script src="../dist/ddtimelines.js"></script>
     <script>
       new DDTimelines({
         size: [800, 600],
@@ -17,14 +17,14 @@
         zoom: [1, 12],
         timelines: [
           {
-            type: "combo",
+            type: "line",
             combination: ["bar", "line"],
             url: "http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points",
             queries: {
               id: "34216",
-              var: "prec,temp"
+              var: "temp"
             },
-            labels: ["降水量","気温"]
+            labels: ["気温"]
           },
           {
             type: "duration",

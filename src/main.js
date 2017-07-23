@@ -423,7 +423,7 @@ var DDTimelines = function(settings) {
   function showLine() {
     // Scale the range of the data
     x.domain([sinceDate, untilDate]);
-    y.domain(d3.extent(dataset.points, function(d) {
+    y0.domain(d3.extent(dataset.points, function(d) {
       return +d.value;
     }));
 
