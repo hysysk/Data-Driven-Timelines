@@ -103,17 +103,14 @@ var DDTimelines = function(settings) {
 
   var tracks = [];
 
-  var overlay = g.append("g")
-    .attr("class", "overlay");
+  var overlayContainer = g.append("g")
+    .attr("class", "overlayContainer");
 
   var combination;
 
   // label
   var labelContainer = g.append("g")
-    .attr("class", "labelContainer")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", 12)
-    .attr("text-anchor", "middle");
+    .attr("class", "labelContainer");
 
   // Add the X Axis
   var axisX = d3.axisBottom(x)
@@ -138,27 +135,30 @@ var DDTimelines = function(settings) {
     .scaleExtent([1, 12])
     .on("zoom", onZoom);
 
+  d3.select("body").append("div")
+    .attr("class", "uiContainer");
+
   // Zoom button
-  d3.select("body").append("button")
+  d3.select(".uiContainer").append("button")
     .classed("button_zoom", true)
     .attr("id", "zoom_in")
     .text("+")
     .on("click", onZoomClick);
 
-    d3.select("body").append("button")
+    d3.select(".uiContainer").append("button")
       .classed("button_zoom", true)
       .attr("id", "zoom_out")
       .text("-")
       .on("click", onZoomClick);
 
   // Export button
-  d3.select("body").append("button")
+  d3.select(".uiContainer").append("button")
     .classed("button_export", true)
     .attr("id", "export_svg")
     .text("Export SVG")
     .on("click", onExportClick);
 
-  d3.select("body").append("button")
+  d3.select(".uiContainer").append("button")
     .classed("button_export", true)
     .attr("id", "export_png")
     .text("Export PNG")
@@ -168,22 +168,17 @@ var DDTimelines = function(settings) {
   d3.selectAll(".button_export").on("click", onExportClick);
 
   // Focus view
-  var focusView = g.append("g")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", 12)
-    .attr("class", "focusView");
 
-  focusView.append("line")
+  overlayContainer.append("line")
     .attr("id", "focusLineX")
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
 
   var labelMarginLeft = 8;
 
-  var focusTime = focusView.append("text")
+  var focusTime = overlayContainer.append("text")
     .attr("class", "time")
-    .attr("pointer-events", "none")
-    .attr("text-anchor", "left");
+    .attr("pointer-events", "none");
 
   var focusPoints = [];
   var focusPointValues = [];
@@ -199,14 +194,13 @@ var DDTimelines = function(settings) {
         .attr("dy", "1em")
         .text(tl.labels[0]);
 
-      focusPoints[0] = focusView.append("circle")
+      focusPoints[0] = overlayContainer.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPointValues[0] = focusView.append("text")
+      focusPointValues[0] = overlayContainer.append("text")
         .attr("class", "point1")
-        .attr("pointer-events", "none")
-        .attr("text-anchor", "left");
+        .attr("pointer-events", "none");
     } else if (tl.type == 'combo') {
       labelContainer.append("text")
         .attr("class", "label")
@@ -224,35 +218,29 @@ var DDTimelines = function(settings) {
         .attr("dy", "1em")
         .text(tl.labels[1]);
 
-      focusPoints[0] = focusView.append("circle")
+      focusPoints[0] = overlayContainer.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPoints[1] = focusView.append("circle")
+      focusPoints[1] = overlayContainer.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPointValues[0] = focusView.append("text")
+      focusPointValues[0] = overlayContainer.append("text")
         .attr("class", "point0")
-        .attr("pointer-events", "none")
-        .attr("text-anchor", "left");
+        .attr("pointer-events", "none");
 
-      focusPointValues[1] = focusView.append("text")
+      focusPointValues[1] = overlayContainer.append("text")
         .attr("class", "point1")
-        .attr("pointer-events", "none")
-        .attr("text-anchor", "left");
+        .attr("pointer-events", "none");
     } else if (tl.type == 'duration') {
       tl.labels.forEach(function(d, i) {
         labelContainer.append("text")
           .attr("class", "label")
           .text(d)
-          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
-          .attr("x", margin.left - 84)
-          .attr("text-anchor", "right");
 
-        var label = focusView.append("text").attr("class", "duration" + i)
-          .attr("pointer-events", "none")
-          .attr("text-anchor", "left");
+        var label = overlayContainer.append("text").attr("class", "duration" + i)
+          .attr("pointer-events", "none");
         focusDurationValues.push(label);
       })
     }
@@ -616,7 +604,7 @@ var DDTimelines = function(settings) {
       .attr("x", coords[0] + labelMarginLeft)
       .attr("y", 14);
 
-    focusView.select('#focusLineX')
+    overlayContainer.select('#focusLineX')
       .attr("x1", coords[0]).attr('y1', 0)
       .attr("x2", coords[0]).attr('y2', height);
   }

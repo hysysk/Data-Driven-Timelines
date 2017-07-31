@@ -38,6 +38,18 @@
   stroke: none;
 }
 
+.labelContainer {
+  font-family: sans-serif;
+  font-size: 12px;
+  text-anchor: "middle";
+}
+
+.overlayContainer {
+  font-family: sans-serif;
+  font-size: 12px;
+  text-anchor: "left";
+}
+
 .focusLine {
   fill: none;
   stroke: #666;
