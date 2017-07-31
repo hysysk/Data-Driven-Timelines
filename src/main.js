@@ -432,7 +432,7 @@ var DDTimelines = function(settings) {
       .attr("d", line);
 
     groupX.call(axisX);
-    groupY0.call(axisY);
+    groupY0.call(axisY0);
   }
 
   function showCombo() {
