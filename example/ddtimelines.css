@@ -23,8 +23,13 @@
   fill: #ffe100;
 }
 
+.level1 {
+  fill: #fafafa;
+  stroke: none;
+}
+
 .level2 {
-  fill: #eaeaea;
+  fill: #dedede;
   stroke: none;
 }
 
@@ -56,7 +61,7 @@
 }
 
 .focusPoint {
-  fill: none;
+  fill: white;
   stroke: #000;
 }
 

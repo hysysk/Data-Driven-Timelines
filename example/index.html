@@ -17,12 +17,12 @@
         zoom: [1, 12],
         timelines: [
           {
-            type: "line",
-            combination: ["bar", "line"],
+            type: "combo",
+            combination: ["line", "bar"],
             url: "http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points",
             queries: {
               id: "34216",
-              var: "temp"
+              var: "temp,prec"
             },
             labels: ["気温"]
           },

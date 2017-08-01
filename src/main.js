@@ -106,6 +106,12 @@ var DDTimelines = function(settings) {
   var overlayContainer = g.append("g")
     .attr("class", "overlayContainer");
 
+  var toolTip = overlayContainer.append("g")
+    .attr("class", "toolTip");
+
+  var translateOffsetX = 0;
+  var zoomScale = 1;
+
   var combination;
 
   // label
@@ -169,14 +175,13 @@ var DDTimelines = function(settings) {
 
   // Focus view
 
-  overlayContainer.append("line")
-    .attr("id", "focusLineX")
+  toolTip.append("line")
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
 
   var labelMarginLeft = 8;
 
-  var focusTime = overlayContainer.append("text")
+  var focusTime = toolTip.append("text")
     .attr("class", "time")
     .attr("pointer-events", "none");
 
@@ -194,12 +199,12 @@ var DDTimelines = function(settings) {
         .attr("dy", "1em")
         .text(tl.labels[0]);
 
-      focusPoints[0] = overlayContainer.append("circle")
+      focusPoints[0] = toolTip.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPointValues[0] = overlayContainer.append("text")
-        .attr("class", "point1")
+      focusPointValues[0] = toolTip.append("text")
+        .attr("class", "point0")
         .attr("pointer-events", "none");
     } else if (tl.type == 'combo') {
       labelContainer.append("text")
@@ -218,19 +223,19 @@ var DDTimelines = function(settings) {
         .attr("dy", "1em")
         .text(tl.labels[1]);
 
-      focusPoints[0] = overlayContainer.append("circle")
+      focusPoints[0] = toolTip.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPoints[1] = overlayContainer.append("circle")
+      focusPoints[1] = toolTip.append("circle")
         .attr("r", 3)
         .attr("class", "focusPoint");
 
-      focusPointValues[0] = overlayContainer.append("text")
+      focusPointValues[0] = toolTip.append("text")
         .attr("class", "point0")
         .attr("pointer-events", "none");
 
-      focusPointValues[1] = overlayContainer.append("text")
+      focusPointValues[1] = toolTip.append("text")
         .attr("class", "point1")
         .attr("pointer-events", "none");
     } else if (tl.type == 'duration') {
@@ -238,8 +243,10 @@ var DDTimelines = function(settings) {
         labelContainer.append("text")
           .attr("class", "label")
           .text(d)
+          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
+          .attr("x", margin.left - 84);
 
-        var label = overlayContainer.append("text").attr("class", "duration" + i)
+        var label = toolTip.append("text").attr("class", "duration" + i)
           .attr("pointer-events", "none");
         focusDurationValues.push(label);
       })
@@ -570,17 +577,17 @@ var DDTimelines = function(settings) {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
 
       focusPointValues[0].text(match.value[0])
-        .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
+        .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
         .attr("y", y0(match.value[0]));
 
-      focusPoints[0].attr("transform", "translate(" + transform.applyX(x(match.at)) + "," + y0(match.value[0]) + ")");
+      focusPoints[0].attr("transform", "translate(" + transform.applyX((x(match.at) + translateOffsetX)/zoomScale) + "," + y0(match.value[0]) + ")");
 
       if (focusPoints.length == 2) {
         focusPointValues[1].text(match.value[1])
-          .attr("x", transform.applyX(x(match.at)) + labelMarginLeft)
+          .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
           .attr("y", y1(match.value[1]));
 
-        focusPoints[1].attr("transform", "translate(" + transform.applyX(x(match.at)) + "," + y1(match.value[1]) + ")");
+        focusPoints[1].attr("transform", "translate(" + transform.applyX((x(match.at) + translateOffsetX)/zoomScale) + "," + y1(match.value[1]) + ")");
       }
     }
 
@@ -589,7 +596,7 @@ var DDTimelines = function(settings) {
       timeline.forEach(function(d, i) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
-            .attr("x", coords[0] + labelMarginLeft)
+            .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
             .attr("y", height / 2 + index * 32 + 42);
           isFocusOver = true;
         } else {
@@ -601,16 +608,30 @@ var DDTimelines = function(settings) {
     });
 
     focusTime.text(formatTime(posX))
-      .attr("x", coords[0] + labelMarginLeft)
+      .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
       .attr("y", 14);
 
-    overlayContainer.select('#focusLineX')
-      .attr("x1", coords[0]).attr('y1', 0)
-      .attr("x2", coords[0]).attr('y2', height);
+    toolTip.select('.focusLine')
+      .attr("x1", (coords[0] + translateOffsetX)/zoomScale).attr('y1', 0)
+      .attr("x2", (coords[0] + translateOffsetX)/zoomScale).attr('y2', height);
   }
 
   function onMouseClick() {
-
+    var toolTip = d3.select(".toolTip");
+    var savedToolTip = overlayContainer.append("g")
+      .attr("class", "savedToolTip");
+    toolTip.node().childNodes.forEach(function(d) {
+      var nodeName = d3.select(d).node().nodeName;
+      var nodeAttr = d3.select(d).node().attributes;
+      var nodeValue = d3.select(d).node().childNodes;
+      var copiedNode = savedToolTip.append(nodeName);
+      Object.keys(nodeAttr).forEach(function(key) {
+        copiedNode.attr(nodeAttr[key].name, nodeAttr[key].value);
+        if(nodeValue[0]) {
+          copiedNode.text(nodeValue[0].textContent);
+        }
+      });
+    });
   }
 
   function onExportClick() {
@@ -708,7 +729,11 @@ var DDTimelines = function(settings) {
   function onZoom() {
     var t = d3.event.transform;
 
+    translateOffsetX = -t.x;
+    zoomScale = t.k;
+
     chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
