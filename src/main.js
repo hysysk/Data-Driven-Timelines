@@ -174,7 +174,6 @@ var DDTimelines = function(settings) {
   d3.selectAll(".button_export").on("click", onExportClick);
 
   // Focus view
-
   toolTip.append("line")
     .attr("class", "focusLine")
     .attr("pointer-events", "none");
@@ -263,8 +262,6 @@ var DDTimelines = function(settings) {
 
   focusRect.on('mousemove', onMouseMove);
   focusRect.on('click', onMouseClick);
-
-  var focusLines = [];
 
   var loading = d3.ddtimelines.spinner(svg, {
     "width": 44,
