@@ -735,6 +735,7 @@ var DDTimelines = function(settings) {
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
+    // update saved points
     var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
     var savedValues0 = [];
     for(var i=0; i<focusPointValues0.length; i++) {
@@ -763,6 +764,7 @@ var DDTimelines = function(settings) {
       fp1.attr("cy", y1(savedValues1[i]));
     }
 
+    // load new data when scroll reaches 50%
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
     if (Math.ceil(((t.x - width / 2) / width) / t.k) == -forwardIndex) {
       newSinceDate = new Date(sinceDate.getTime() + duration * forwardIndex);
