@@ -200,7 +200,7 @@ var DDTimelines = function(settings) {
 
       focusPoints[0] = toolTip.append("circle")
         .attr("r", 3)
-        .attr("class", "focusPoint");
+        .attr("class", "focusPoint0");
 
       focusPointValues[0] = toolTip.append("text")
         .attr("class", "point0")
@@ -224,11 +224,11 @@ var DDTimelines = function(settings) {
 
       focusPoints[0] = toolTip.append("circle")
         .attr("r", 3)
-        .attr("class", "focusPoint");
+        .attr("class", "focusPoint0");
 
       focusPoints[1] = toolTip.append("circle")
         .attr("r", 3)
-        .attr("class", "focusPoint");
+        .attr("class", "focusPoint1");
 
       focusPointValues[0] = toolTip.append("text")
         .attr("class", "point0")
@@ -577,14 +577,16 @@ var DDTimelines = function(settings) {
         .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
         .attr("y", y0(match.value[0]));
 
-      focusPoints[0].attr("transform", "translate(" + transform.applyX((x(match.at) + translateOffsetX)/zoomScale) + "," + y0(match.value[0]) + ")");
+      focusPoints[0].attr("cx", transform.applyX((x(match.at)) + translateOffsetX)/zoomScale);
+      focusPoints[0].attr("cy", y0(match.value[0]));
 
       if (focusPoints.length == 2) {
         focusPointValues[1].text(match.value[1])
           .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
           .attr("y", y1(match.value[1]));
 
-        focusPoints[1].attr("transform", "translate(" + transform.applyX((x(match.at) + translateOffsetX)/zoomScale) + "," + y1(match.value[1]) + ")");
+        focusPoints[1].attr("cx", transform.applyX((x(match.at)) + translateOffsetX)/zoomScale);
+        focusPoints[1].attr("cy", y1(match.value[1]));
       }
     }
 
@@ -614,10 +616,10 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseClick() {
-    var toolTip = d3.select(".toolTip");
+    var t = d3.select(".toolTip");
     var savedToolTip = overlayContainer.append("g")
       .attr("class", "savedToolTip");
-    toolTip.node().childNodes.forEach(function(d) {
+    t.node().childNodes.forEach(function(d) {
       var nodeName = d3.select(d).node().nodeName;
       var nodeAttr = d3.select(d).node().attributes;
       var nodeValue = d3.select(d).node().childNodes;
@@ -732,6 +734,34 @@ var DDTimelines = function(settings) {
     chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
+
+    var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
+    var savedValues0 = [];
+    for(var i=0; i<focusPointValues0.length; i++) {
+      var fp0 = d3.select(focusPointValues0[i]);
+      fp0.attr("y", y0(fp0.text()));
+      savedValues0.push(fp0.text());
+    }
+
+    var focusPointValues1 = d3.selectAll(".savedToolTip .point1").nodes();
+    var savedValues1 = [];
+    for(var i=0; i<focusPointValues1.length; i++) {
+      var fp1 = d3.select(focusPointValues1[i]);
+      fp1.attr("y", y1(fp1.text()));
+      savedValues1.push(fp1.text());
+    }
+
+    var focusPoints0 = d3.selectAll(".savedToolTip .focusPoint0").nodes();
+    for(var i=0; i<focusPoints0.length; i++) {
+      var fp0 = d3.select(focusPoints0[i]);
+      fp0.attr("cy", y0(savedValues0[i]));
+    }
+
+    var focusPoints1 = d3.selectAll(".savedToolTip .focusPoint1").nodes();
+    for(var i=0; i<focusPoints1.length; i++) {
+      var fp1 = d3.select(focusPoints1[i]);
+      fp1.attr("cy", y1(savedValues1[i]));
+    }
 
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
     if (Math.ceil(((t.x - width / 2) / width) / t.k) == -forwardIndex) {
