@@ -574,18 +574,18 @@ var DDTimelines = function(settings) {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
 
       focusPointValues[0].text(match.value[0])
-        .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
+        .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
         .attr("y", y0(match.value[0]));
 
-      focusPoints[0].attr("cx", transform.applyX((x(match.at)) + translateOffsetX)/zoomScale);
+      focusPoints[0].attr("cx", (coords[0] + translateOffsetX)/zoomScale);
       focusPoints[0].attr("cy", y0(match.value[0]));
 
       if (focusPoints.length == 2) {
         focusPointValues[1].text(match.value[1])
-          .attr("x", transform.applyX((x(match.at)) + translateOffsetX + labelMarginLeft)/zoomScale)
+          .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
           .attr("y", y1(match.value[1]));
 
-        focusPoints[1].attr("cx", transform.applyX((x(match.at)) + translateOffsetX)/zoomScale);
+        focusPoints[1].attr("cx", (coords[0] + translateOffsetX)/zoomScale);
         focusPoints[1].attr("cy", y1(match.value[1]));
       }
     }
@@ -731,8 +731,8 @@ var DDTimelines = function(settings) {
     translateOffsetX = -t.x;
     zoomScale = t.k;
 
-    chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
-    overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + t.k + ",1)");
+    chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
+    overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     // update saved points
@@ -762,6 +762,7 @@ var DDTimelines = function(settings) {
     for(var i=0; i<focusPoints1.length; i++) {
       var fp1 = d3.select(focusPoints1[i]);
       fp1.attr("cy", y1(savedValues1[i]));
+      fp1.attr("font-size", 12/zoomScale);
     }
 
     // load new data when scroll reaches 50%
