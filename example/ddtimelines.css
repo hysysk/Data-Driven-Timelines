@@ -17,10 +17,12 @@
 
 .barContainer0 {
   fill: #2ecfff;
+  opacity: 0.8;
 }
 
 .barContainer1 {
   fill: #ffe100;
+  opacity: 0.8;
 }
 
 .level1 {

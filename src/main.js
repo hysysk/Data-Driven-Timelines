@@ -176,7 +176,8 @@ var DDTimelines = function(settings) {
   // Focus view
   toolTip.append("line")
     .attr("class", "focusLine")
-    .attr("pointer-events", "none");
+    .attr("pointer-events", "none")
+    .attr("vector-effect", "non-scaling-stroke");
 
   var labelMarginLeft = 8;
 
