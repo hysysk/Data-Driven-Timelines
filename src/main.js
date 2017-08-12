@@ -118,6 +118,8 @@ var DDTimelines = function(settings) {
   var labelContainer = g.append("g")
     .attr("class", "labelContainer");
 
+  var annotations = [];
+
   // Add the X Axis
   var axisX = d3.axisBottom(x)
     .tickSize(height);
@@ -206,6 +208,7 @@ var DDTimelines = function(settings) {
       focusPointValues[0] = toolTip.append("text")
         .attr("class", "point0")
         .attr("pointer-events", "none");
+
     } else if (tl.type == 'combo') {
       labelContainer.append("text")
         .attr("class", "label")
@@ -238,6 +241,7 @@ var DDTimelines = function(settings) {
       focusPointValues[1] = toolTip.append("text")
         .attr("class", "point1")
         .attr("pointer-events", "none");
+
     } else if (tl.type == 'duration') {
       tl.labels.forEach(function(d, i) {
         labelContainer.append("text")
@@ -261,8 +265,10 @@ var DDTimelines = function(settings) {
     .attr("pointer-events", "all")
     .call(zoom);
 
-  focusRect.on('mousemove', onMouseMove);
-  focusRect.on('click', onMouseClick);
+  focusRect.on("mousemove", onMouseMove);
+  focusRect.on("mouseout", onMouseOut);
+  focusRect.on("mouseover", onMouseOver);
+  focusRect.on("click", onMouseClick);
 
   var loading = d3.ddtimelines.spinner(svg, {
     "width": 44,
@@ -409,6 +415,21 @@ var DDTimelines = function(settings) {
     // exit
     bars.exit().remove();
 
+    // update saved points
+    var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
+    var savedValues0 = [];
+    focusPointValues0.forEach(function(d) {
+      var fp0 = d3.select(d);
+      fp0.attr("y", y0(fp0.text()));
+      savedValues0.push(fp0.text());
+    });
+
+    var focusPoints0 = d3.selectAll(".savedToolTip .focusPoint0").nodes();
+    focusPoints0.forEach(function(d, i) {
+      var fp0 = d3.select(d);
+      fp0.attr("cy", y0(savedValues0[i]));
+    });
+
     groupX.call(axisX);
     groupY0.call(axisY0);
   }
@@ -423,6 +444,21 @@ var DDTimelines = function(settings) {
     lineContainer.data([dataset.points])
       .attr("class", "line")
       .attr("d", line);
+
+    // update saved points
+    var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
+    var savedValues0 = [];
+    focusPointValues0.forEach(function(d) {
+      var fp0 = d3.select(d);
+      fp0.attr("y", y0(fp0.text()));
+      savedValues0.push(fp0.text());
+    });
+
+    var focusPoints0 = d3.selectAll(".savedToolTip .focusPoint0").nodes();
+    focusPoints0.forEach(function(d, i) {
+      var fp0 = d3.select(d);
+      fp0.attr("cy", y0(savedValues0[i]));
+    });
 
     groupX.call(axisX);
     groupY0.call(axisY0);
@@ -521,6 +557,36 @@ var DDTimelines = function(settings) {
       }
     });
 
+    // update saved points
+    var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
+    var savedValues0 = [];
+    focusPointValues0.forEach(function(d) {
+      var fp0 = d3.select(d);
+      fp0.attr("y", y0(fp0.text()));
+      savedValues0.push(fp0.text());
+    });
+
+    var focusPointValues1 = d3.selectAll(".savedToolTip .point1").nodes();
+    var savedValues1 = [];
+    focusPointValues1.forEach(function(d) {
+      var fp1 = d3.select(d);
+      fp1.attr("y", y1(fp1.text()));
+      savedValues1.push(fp1.text());
+    });
+
+    var focusPoints0 = d3.selectAll(".savedToolTip .focusPoint0").nodes();
+    focusPoints0.forEach(function(d, i) {
+      var fp0 = d3.select(d);
+      fp0.attr("cy", y0(savedValues0[i]));
+    });
+
+    var focusPoints1 = d3.selectAll(".savedToolTip .focusPoint1").nodes();
+    focusPoints1.forEach(function(d, i) {
+      var fp1 = d3.select(d);
+      fp1.attr("cy", y1(savedValues1[i]));
+      fp1.attr("font-size", 12/zoomScale);
+    });
+
     groupX.call(axisX);
     groupY0.call(axisY0);
     groupY1.call(axisY1);
@@ -614,6 +680,8 @@ var DDTimelines = function(settings) {
     toolTip.select(".focusLine")
       .attr("x1", (coords[0] + translateOffsetX)/zoomScale).attr('y1', 0)
       .attr("x2", (coords[0] + translateOffsetX)/zoomScale).attr('y2', height);
+
+    relax();
   }
 
   function onMouseClick() {
@@ -629,9 +697,50 @@ var DDTimelines = function(settings) {
         copiedNode.attr(nodeAttr[key].name, nodeAttr[key].value);
         if(nodeValue[0]) {
           copiedNode.text(nodeValue[0].textContent);
+          annotations.push(copiedNode);
         }
       });
     });
+  }
+
+  function onMouseOver() {
+    toolTip.attr("visibility", "visible");
+  }
+
+  function onMouseOut() {
+    toolTip.attr("visibility", "hidden");
+  }
+
+  function relax() {
+    var again = false;
+    annotations.forEach(function(a, i) {
+      annotations.slice(i+1).forEach(function(b, j) {
+        if(a == b) return;
+
+        var bboxA = a.node().getBBox();
+        var bboxB = b.node().getBBox();
+
+        var topA = bboxA.y;
+        var bottomA = bboxA.y + bboxA.height;
+        var leftA = bboxA.x;
+        var rightA = bboxA.x + bboxA.width;
+
+        var topB = bboxB.y;
+        var bottomB = bboxB.y + bboxB.height;
+        var leftB = bboxB.x;
+        var rightB = bboxB.x + bboxB.width;
+
+        var collideH = leftA < rightB && rightA > leftB;
+        var collideV = topA < bottomB && bottomA > topB;
+
+        if(collideH && collideV) {
+          again = true;
+          a.attr("y", +a.attr("y") + 0.5);
+          b.attr("y", +b.attr("y") - 0.5);
+        }
+      });
+    });
+    if(again) setTimeout(relax, 30);
   }
 
   function onExportClick() {
@@ -735,36 +844,6 @@ var DDTimelines = function(settings) {
     chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
-
-    // update saved points
-    var focusPointValues0 = d3.selectAll(".savedToolTip .point0").nodes();
-    var savedValues0 = [];
-    focusPointValues0.forEach(function(d) {
-      var fp0 = d3.select(d);
-      fp0.attr("y", y0(fp0.text()));
-      savedValues0.push(fp0.text());
-    });
-
-    var focusPointValues1 = d3.selectAll(".savedToolTip .point1").nodes();
-    var savedValues1 = [];
-    focusPointValues1.forEach(function(d) {
-      var fp1 = d3.select(d);
-      fp1.attr("y", y1(fp1.text()));
-      savedValues1.push(fp1.text());
-    });
-
-    var focusPoints0 = d3.selectAll(".savedToolTip .focusPoint0").nodes();
-    focusPoints0.forEach(function(d, i) {
-      var fp0 = d3.select(d);
-      fp0.attr("cy", y0(savedValues0[i]));
-    });
-
-    var focusPoints1 = d3.selectAll(".savedToolTip .focusPoint1").nodes();
-    focusPoints1.forEach(function(d, i) {
-      var fp1 = d3.select(d);
-      fp1.attr("cy", y1(savedValues1[i]));
-      fp1.attr("font-size", 12/zoomScale);
-    });
 
     // load new data when scroll reaches 50%
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;

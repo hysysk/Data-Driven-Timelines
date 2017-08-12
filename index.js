@@ -71,10 +71,5 @@ export {
 } from 'd3-time'
 
 export {
-  forceManyBody,
-  forceSimulation
-} from 'd3-force'
-
-export {
   timeline
 } from 'd3-timeline'
