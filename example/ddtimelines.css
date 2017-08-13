@@ -1,3 +1,26 @@
+.uiContainer button {
+  font-size: 14px;
+  min-width: 32px;
+  height: 32px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #dedede;
+  color: #333333;
+  margin: 0 4px;
+  user-select: none;
+  transition: all .2s ease-in-out;
+}
+
+.uiContainer button:hover {
+  background-color: #dedede;
+}
+
+.uiContainer button:focus {
+  outline:0;
+  background-color: #dedede;
+  border: 1px solid #999999;
+}
+
 .tick line {
   opacity: 0.2;
   stroke-dasharray: 4, 4;
@@ -7,22 +30,24 @@
   fill: none;
   stroke: #FF1493;
   stroke-width: 2px;
+  opacity: 0.5;
 }
 
 .lineContainer1 .line {
   fill: none;
   stroke: #005AFF;
   stroke-width: 2px;
+  opacity: 0.5;
 }
 
 .barContainer0 {
-  fill: #2ecfff;
-  opacity: 0.8;
+  fill: #6AEDC7;
+  opacity: 0.5;
 }
 
 .barContainer1 {
   fill: #ffe100;
-  opacity: 0.8;
+  opacity: 0.5;
 }
 
 .level1 {
@@ -31,17 +56,17 @@
 }
 
 .level2 {
-  fill: #dedede;
+  fill: #EFF2F5;
   stroke: none;
 }
 
 .level4 {
-  fill: #ff0;
+  fill: #FFCE00;
   stroke: none;
 }
 
 .level5 {
-  fill: #f3c;
+  fill: #F866B9;
   stroke: none;
 }
 
@@ -57,6 +82,14 @@
   text-anchor: "left";
 }
 
+.toolTip {
+  opacity: 0.6;
+}
+
+.savedToolTip {
+  opacity: 1;
+}
+
 .focusLine {
   fill: none;
   stroke: #666;
@@ -67,7 +100,14 @@
   stroke: #000;
 }
 
-.checkedLine {
-  fill: none;
-  stroke: #333;
+.axisX path {
+  stroke: none;
+}
+
+.axisY path {
+  stroke: #666;
+}
+
+.label, .axisX text, .axisY text {
+  fill: #666;
 }

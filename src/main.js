@@ -10,10 +10,16 @@ var DDTimelines = function(settings) {
   var width = size[0] - margin.left - margin.right;
   var height = size[1] - margin.top - margin.bottom;
 
+  var pointChartRatio = settings.splitRatio ? settings.splitRatio[0] : 5;
+  var durationChartRatio = settings.splitRatio ? settings.splitRatio[1] : 5;
+
+  var pointChartHeight = height * pointChartRatio/10;
+  var durationChartHeight = height * durationChartRatio/10;
+
   // set the ranges
   var x = d3.scaleTime().range([0, width]);
-  var y0 = d3.scaleLinear().range([height / 2, 0]);
-  var y1 = d3.scaleLinear().range([height / 2, 0]);
+  var y0 = d3.scaleLinear().range([pointChartHeight, 0]);
+  var y1 = d3.scaleLinear().range([pointChartHeight, 0]);
 
   // dataset
   var dataset = d3.ddtimelines.timelineData();
@@ -38,7 +44,7 @@ var DDTimelines = function(settings) {
 
   // define the timeline
   var timeline = d3.timeline()
-    .size([width, height])
+    .size([width, durationChartHeight])
     .bandStart(function(d) {
       return d.start_at;
     })
@@ -111,6 +117,8 @@ var DDTimelines = function(settings) {
 
   var translateOffsetX = 0;
   var zoomScale = 1;
+  var zoomMin = settings.zoom ? settings.zoom[0] : 1;
+  var zoomMax = settings.zoom ? settings.zoom[1] : 16;
 
   var combination;
 
@@ -124,11 +132,13 @@ var DDTimelines = function(settings) {
   var axisX = d3.axisBottom(x)
     .tickSize(height);
   var groupX = g.append("g")
+    .attr("class", "axisX")
     .call(axisX);
 
   // Add the Y Axis
   var axisY0 = d3.axisLeft(y0);
   var groupY0 = g.append("g")
+    .attr("class", "axisY")
     .call(axisY0);
   var axisY1 = d3.axisRight(y1);
   var groupY1;
@@ -140,7 +150,7 @@ var DDTimelines = function(settings) {
 
   // Zoom controller
   var zoom = d3.zoom()
-    .scaleExtent([1, 12])
+    .scaleExtent([zoomMin, zoomMax])
     .on("zoom", onZoom);
 
   d3.select("body").append("div")
@@ -197,7 +207,7 @@ var DDTimelines = function(settings) {
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
-        .attr("x", 0 - height / 4)
+        .attr("x", 0 - pointChartHeight / 2)
         .attr("dy", "1em")
         .text(tl.labels[0]);
 
@@ -214,14 +224,14 @@ var DDTimelines = function(settings) {
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("y", 0 - margin.left)
-        .attr("x", 0 - height / 4)
+        .attr("x", 0 - pointChartHeight / 2)
         .attr("dy", "1em")
         .text(tl.labels[0]);
 
       labelContainer.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(90)")
-        .attr("x", height / 4)
+        .attr("x", pointChartHeight / 2)
         .attr("y", -width - margin.right)
         .attr("dy", "1em")
         .text(tl.labels[1]);
@@ -247,7 +257,7 @@ var DDTimelines = function(settings) {
         labelContainer.append("text")
           .attr("class", "label")
           .text(d)
-          .attr("y", height / 2 + margin.bottom + (i + 1) * 32 - 20)
+          .attr("y", pointChartHeight + margin.bottom + (i + 1) * 32 - 20)
           .attr("x", margin.left - 84);
 
         var label = toolTip.append("text").attr("class", "duration" + i)
@@ -409,7 +419,7 @@ var DDTimelines = function(settings) {
         return y0(d.value);
       })
       .attr("height", function(d) {
-        return height / 2 - y0(d.value);
+        return pointChartHeight - y0(d.value);
       });
 
     // exit
@@ -476,6 +486,7 @@ var DDTimelines = function(settings) {
 
     if (!groupY1) {
       groupY1 = g.append("g")
+        .attr("class", "axisY")
         .attr("transform", "translate(" + width + ",0)")
         .call(axisY1);
     }
@@ -530,9 +541,9 @@ var DDTimelines = function(settings) {
           })
           .attr("height", function(d) {
             if (index == 0) {
-              return height / 2 - y0(d.value[0]);
+              return pointChartHeight - y0(d.value[0]);
             } else if (index == 1) {
-              return height / 2 - y1(d.value[1]);
+              return pointChartHeight - y1(d.value[1]);
             }
           });
 
@@ -546,9 +557,9 @@ var DDTimelines = function(settings) {
           })
           .attr("height", function(d) {
             if (index == 0) {
-              return height / 2 - y0(d.value[0]);
+              return pointChartHeight - y0(d.value[0]);
             } else if (index == 1) {
-              return height / 2 - y1(d.value[1]);
+              return pointChartHeight - y1(d.value[1]);
             }
           });
 
@@ -611,7 +622,7 @@ var DDTimelines = function(settings) {
           return d.start;
         })
         .attr("y", function(d) {
-          return height / 2 + margin.bottom + i * d.dy;
+          return pointChartHeight + margin.bottom + i * d.dy;
         })
         .attr("height", function(d) {
           return d.dy;
@@ -663,7 +674,7 @@ var DDTimelines = function(settings) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
             .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
-            .attr("y", height / 2 + index * 32 + 42);
+            .attr("y", pointChartHeight + index * 32 + 42);
           isFocusOver = true;
         } else {
           if (!isFocusOver) {
