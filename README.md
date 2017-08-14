@@ -44,7 +44,8 @@ Data Driven TimelinesはD3.jsから一部の機能を利用して作成してい
   - npm install
 - D3.jsをビルド
   - gulp build:d3
-- D3.jsとDDTimelines.jsを結合し、最小化する
+- D3.jsとsrcフォルダ以下のファイルを結合し、最小化する。この作業は「gulp watch」で自動化できます。
   - gulp build:ddt
+- distフォルダ以下にddtimelines.jsとddtimelines.min.jsが出力される
 
 D3.jsの機能を追加する場合は、index.jsに追加するモジュールを記述し、ビルドしてください。
