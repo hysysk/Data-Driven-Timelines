@@ -153,7 +153,7 @@ var DDTimelines = function(settings) {
     .scaleExtent([zoomMin, zoomMax])
     .on("zoom", onZoom);
 
-  d3.select("body").append("div")
+  d3.select(settings.selector).append("div")
     .attr("class", "uiContainer");
 
   // Zoom button
@@ -173,13 +173,13 @@ var DDTimelines = function(settings) {
   d3.select(".uiContainer").append("button")
     .classed("button_export", true)
     .attr("id", "export_svg")
-    .text("Export SVG")
+    .text("SVG")
     .on("click", onExportClick);
 
   d3.select(".uiContainer").append("button")
     .classed("button_export", true)
     .attr("id", "export_png")
-    .text("Export PNG")
+    .text("PNG")
     .on("click", onExportClick);
 
 
@@ -206,6 +206,7 @@ var DDTimelines = function(settings) {
       labelContainer.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
+        .attr("text-anchor", "middle")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - pointChartHeight / 2)
         .attr("dy", "1em")
@@ -223,6 +224,7 @@ var DDTimelines = function(settings) {
       labelContainer.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
+        .attr("text-anchor", "middle")
         .attr("y", 0 - margin.left)
         .attr("x", 0 - pointChartHeight / 2)
         .attr("dy", "1em")
@@ -231,6 +233,7 @@ var DDTimelines = function(settings) {
       labelContainer.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(90)")
+        .attr("text-anchor", "middle")
         .attr("x", pointChartHeight / 2)
         .attr("y", -width - margin.right)
         .attr("dy", "1em")

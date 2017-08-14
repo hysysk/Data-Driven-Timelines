@@ -1,3 +1,14 @@
+#timeline {
+  border: 1px solid #999999;
+  border-radius: 4px;
+  width: 800px;
+  padding: 15px;
+}
+
+#timeline svg {
+  background-color: #ffffff;
+}
+
 .uiContainer button {
   font-size: 14px;
   min-width: 32px;
@@ -8,7 +19,11 @@
   color: #333333;
   margin: 0 4px;
   user-select: none;
-  transition: all .2s ease-in-out;
+  transition: all .2s ease-out;
+}
+
+.uiContainer button:first-child {
+  margin-left: 0;
 }
 
 .uiContainer button:hover {
@@ -30,14 +45,14 @@
   fill: none;
   stroke: #FF1493;
   stroke-width: 2px;
-  opacity: 0.5;
+  opacity: 0.8;
 }
 
 .lineContainer1 .line {
   fill: none;
-  stroke: #005AFF;
+  stroke: #998CE3;
   stroke-width: 2px;
-  opacity: 0.5;
+  opacity: 0.8;
 }
 
 .barContainer0 {
@@ -51,22 +66,28 @@
 }
 
 .level1 {
-  fill: #fafafa;
-  stroke: none;
-}
-
-.level2 {
   fill: #EFF2F5;
   stroke: none;
 }
 
-.level4 {
+.level2 {
   fill: #FFCE00;
   stroke: none;
 }
 
-.level5 {
+.level3 {
+  fill: #FFA71A;
+  stroke: none;
+}
+
+.level4 {
   fill: #F866B9;
+  stroke: none;
+}
+
+.level5 {
+  fill: #F340A5;
+;
   stroke: none;
 }
 
