@@ -859,9 +859,9 @@ var DDTimelines = function(settings) {
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
-    // load new data when scroll reaches 50%
+    // load new data when scroll reaches 20%
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
-    if (Math.ceil(((t.x - width / 2) / width) / t.k) == -forwardIndex) {
+    if (Math.ceil(((t.x - width * 0.8) / width) / t.k) == -forwardIndex) {
       newSinceDate = new Date(sinceDate.getTime() + duration * forwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
@@ -869,7 +869,7 @@ var DDTimelines = function(settings) {
       newUntilDateString = formatTime(newUntilDate);
       loadNewData(newSinceDateString, newUntilDateString);
       forwardIndex++;
-    } else if (Math.floor(((t.x + width / 2) / width) / t.k) == backwardIndex) {
+    } else if (Math.floor(((t.x + width * 0.8) / width) / t.k) == backwardIndex) {
       newSinceDate = new Date(sinceDate.getTime() - duration * backwardIndex);
       newSinceDateString = formatTime(newSinceDate);
 
