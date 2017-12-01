@@ -7144,6 +7144,10 @@ var DDTimelines = function(settings) {
     .attr("class", "axisX")
     .call(axisX);
 
+  groupX.append("g")
+    .attr("transform", "translate(0," + pointChartHeight + ")")
+    .call(d3.axisBottom(x))
+
   // Add the Y Axis
   var axisY0 = d3.axisLeft(y0);
   var groupY0 = g.append("g")
@@ -7644,6 +7648,9 @@ var DDTimelines = function(settings) {
         })
         .attr("class", function(d) {
           return d.class;
+        })
+        .attr("url", function(d) {
+          return d.url;
         });
 
       rects.exit().remove();
@@ -7707,31 +7714,19 @@ var DDTimelines = function(settings) {
     relax();
   }
 
-  function onMouseClick() {
-    var t = d3.select(".toolTip");
-    var savedToolTip = overlayContainer.append("g")
-      .attr("class", "savedToolTip");
-    t.node().childNodes.forEach(function(d) {
-      var nodeName = d3.select(d).node().nodeName;
-      var nodeAttr = d3.select(d).node().attributes;
-      var nodeValue = d3.select(d).node().childNodes;
-      var copiedNode = savedToolTip.append(nodeName);
-      Object.keys(nodeAttr).forEach(function(key) {
-        copiedNode.attr(nodeAttr[key].name, nodeAttr[key].value);
-        if(nodeValue[0]) {
-          copiedNode.text(nodeValue[0].textContent);
-          annotations.push(copiedNode);
-        }
-      });
-    });
-  }
-
   function onMouseOver() {
     toolTip.attr("visibility", "visible");
   }
 
   function onMouseOut() {
     toolTip.attr("visibility", "hidden");
+  }
+
+  function onMouseClick() {
+    var rects = d3.selectAll(".timelines rect").nodes();
+    rects.forEach(function(rect) {
+      console.log(rect);
+    });
   }
 
   function relax() {

@@ -87,7 +87,6 @@
 
 .level5 {
   fill: #F340A5;
-;
   stroke: none;
 }
 
@@ -122,7 +121,7 @@
 }
 
 .axisX path {
-  stroke: none;
+  stroke: #666;
 }
 
 .axisY path {
