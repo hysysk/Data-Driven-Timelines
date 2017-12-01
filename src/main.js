@@ -714,10 +714,7 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseClick() {
-    var rects = d3.selectAll(".timelines rect").nodes();
-    rects.forEach(function(rect) {
-      console.log(rect);
-    });
+
   }
 
   function relax() {

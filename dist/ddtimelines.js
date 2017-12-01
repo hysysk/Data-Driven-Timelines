@@ -7723,10 +7723,7 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseClick() {
-    var rects = d3.selectAll(".timelines rect").nodes();
-    rects.forEach(function(rect) {
-      console.log(rect);
-    });
+
   }
 
   function relax() {
@@ -7953,13 +7950,24 @@ d3.ddtimelines.timelineData = function module() {
   };
 
   exports.addTimelines = function(_data) {
-    _data.forEach(function(track, i) {
+    for(var i=0; i<_data.length; i++) {
       if(!durations[i]) {
-        durations[i] = [];
+        durations[i] = _data[i].duration;
       }
-      durations[i] = durations[i].concat(track.duration);
-      exports.timelines[i] = durations[i];
-    })
+      for(var j=0, newDataLength=_data[i].duration.length; j<newDataLength; j++) {
+        var isTheSameData = false;
+        for(var k=0, oldDataLength=durations[i].length; k<oldDataLength; k++) {
+          if(JSON.stringify(_data[i].duration[j]) === JSON.stringify(durations[i][k])) {
+            isTheSameData = true;
+          }
+        }
+        if(!isTheSameData) {
+          durations[i].push(_data[i].duration[j])
+        }
+      }
+    }
+
+    exports.timelines = durations;
   };
 
   exports.sortPoints = function() {
