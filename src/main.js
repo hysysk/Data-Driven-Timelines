@@ -264,7 +264,7 @@ var DDTimelines = function(settings) {
         labelContainer.append("text")
           .attr("class", "label")
           .text(d)
-          .attr("y", pointChartHeight + margin.bottom + (i + 1) * 32 - 20)
+          .attr("y", pointChartHeight + margin.bottom + (i + 1) * 30 - 18)
           .attr("x", margin.left - 84);
 
         var label = toolTip.append("text").attr("class", "duration" + i)
@@ -560,8 +560,7 @@ var DDTimelines = function(settings) {
       var timelineBands = timeline(tl);
 
       if (!tracks[i]) {
-        tracks[i] = timelineContainer.append("g")
-          .attr("transform", "translate(0," + i * 17 + ")");
+        tracks[i] = timelineContainer.append("g");
       }
 
       var rects = tracks[i].selectAll("rect")
@@ -574,7 +573,7 @@ var DDTimelines = function(settings) {
           return d.start;
         })
         .attr("y", function(d) {
-          return pointChartHeight + margin.bottom + i * d.dy;
+          return pointChartHeight + margin.bottom + i * d.dy + i * 15;
         })
         .attr("height", function(d) {
           return d.dy;
@@ -629,7 +628,7 @@ var DDTimelines = function(settings) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
             .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
-            .attr("y", pointChartHeight + index * 32 + 42);
+            .attr("y", pointChartHeight + index * 30 + 42);
           isFocusOver = true;
         } else {
           if (!isFocusOver) {
@@ -659,6 +658,21 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseClick() {
+    var coords = d3.mouse(this);
+    var transform = d3.zoomTransform(this);
+    var rects = chartContainer.selectAll(".timelines rect").nodes();
+    rects.forEach(function(rect) {
+      var r = d3.select(rect);
+      var left = transform.applyX((parseInt(r.attr("x"))));
+      var right = transform.applyX(parseInt(r.attr("x")) + parseInt(r.attr("width")));
+      var top = parseInt(r.attr("y"));
+      var bottom = top + parseInt(r.attr("height"));
+      var url = r.attr("url");
+
+      if(coords[0] >= left && coords[0] <= right && coords[1] >= top && coords[1] <= bottom) {
+        window.open(url);
+      }
+    })
 
   }
 
