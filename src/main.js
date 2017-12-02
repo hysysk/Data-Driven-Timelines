@@ -595,6 +595,8 @@ var DDTimelines = function(settings) {
   }
 
   function onMouseMove() {
+    toolTip.attr("visibility", "visible");
+
     var transform = d3.zoomTransform(this);
     var xt = transform.rescaleX(x);
     var coords = d3.mouse(this);
@@ -606,18 +608,18 @@ var DDTimelines = function(settings) {
       var match = posX - smaller.at < larger.at - posX ? smaller : larger;
 
       focusPointValues[0].text(match.value[0])
-        .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
+        .attr("x", coords[0] + translateOffsetX + labelMarginLeft)
         .attr("y", y0(match.value[0]));
 
-      focusPoints[0].attr("cx", (coords[0] + translateOffsetX)/zoomScale);
+      focusPoints[0].attr("cx", coords[0] + translateOffsetX);
       focusPoints[0].attr("cy", y0(match.value[0]));
 
       if (focusPoints.length == 2) {
         focusPointValues[1].text(match.value[1])
-          .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
+          .attr("x", coords[0] + translateOffsetX + labelMarginLeft)
           .attr("y", y1(match.value[1]));
 
-        focusPoints[1].attr("cx", (coords[0] + translateOffsetX)/zoomScale);
+        focusPoints[1].attr("cx", coords[0] + translateOffsetX);
         focusPoints[1].attr("cy", y1(match.value[1]));
       }
     }
@@ -627,7 +629,7 @@ var DDTimelines = function(settings) {
       timeline.forEach(function(d, i) {
         if (coords[0] >= transform.applyX(x(parseTime(d.start_at))) && coords[0] <= transform.applyX(x(parseTime(d.end_at)))) {
           focusDurationValues[index].text(d.label)
-            .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
+            .attr("x", coords[0] + translateOffsetX + labelMarginLeft)
             .attr("y", pointChartHeight + index * 30 + 42);
           isFocusOver = true;
         } else {
@@ -639,12 +641,12 @@ var DDTimelines = function(settings) {
     });
 
     focusTime.text(formatTime(posX))
-      .attr("x", (coords[0] + translateOffsetX + labelMarginLeft)/zoomScale)
+      .attr("x", coords[0] + translateOffsetX + labelMarginLeft)
       .attr("y", 14);
 
     toolTip.select(".focusLine")
-      .attr("x1", (coords[0] + translateOffsetX)/zoomScale).attr('y1', 0)
-      .attr("x2", (coords[0] + translateOffsetX)/zoomScale).attr('y2', height);
+      .attr("x1", coords[0] + translateOffsetX).attr('y1', 0)
+      .attr("x2", coords[0] + translateOffsetX).attr('y2', height);
 
     relax();
   }
@@ -657,6 +659,7 @@ var DDTimelines = function(settings) {
     toolTip.attr("visibility", "hidden");
   }
 
+  // This is a stupid way but zoom event conflicts with click event in this layer structure...
   function onMouseClick() {
     var coords = d3.mouse(this);
     var transform = d3.zoomTransform(this);
@@ -673,7 +676,6 @@ var DDTimelines = function(settings) {
         window.open(url);
       }
     })
-
   }
 
   function relax() {
@@ -808,6 +810,7 @@ var DDTimelines = function(settings) {
 
     chartContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
+    toolTip.attr("transform", "scale(" + 1/zoomScale + ",1)").attr("visibility", "hidden");
     groupX.call(axisX.scale(t.rescaleX(x)));
 
     // load new data when scroll reaches 20%
