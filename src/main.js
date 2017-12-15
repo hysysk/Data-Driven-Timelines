@@ -331,9 +331,11 @@ var DDTimelines = function(settings) {
 
   function buildUrl(endpoint, since, until, queries) {
     var q = endpoint + "?since=" + encodeURIComponent(since) + "&until=" + encodeURIComponent(until);
-    Object.keys(queries).forEach(function(key) {
-      q += "&" + key + "=" + queries[key];
-    });
+    if(queries) {
+      Object.keys(queries).forEach(function(key) {
+        q += "&" + key + "=" + queries[key];
+      });
+    }
     return q;
   }
 
@@ -812,6 +814,9 @@ var DDTimelines = function(settings) {
     overlayContainer.attr("transform", "translate(" + t.x + ",0) scale(" + zoomScale + ",1)");
     toolTip.attr("transform", "scale(" + 1/zoomScale + ",1)").attr("visibility", "hidden");
     groupX.call(axisX.scale(t.rescaleX(x)));
+
+    if(settings.loadDataFromFile)
+      return;
 
     // load new data when scroll reaches 20%
     var newSinceDate, newUntilDate, newSinceDateString, newUntilDateString;
