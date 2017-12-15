@@ -16,20 +16,12 @@ new DDTimelines({
     {
       type: 'combo', //チャートの種類 line, bar, combo
       combination: ['bar','line'], //comboチャートの場合、lineとbarをどう組み合わせるか指定
-      url: 'http://agora.ex.nii.ac.jp/timeline/v1/amedas-data/points', //時系列データエンドポイント
-      queries: {
-        id: '34216',
-        var: 'prec,temp'
-      },
+      url: 'http://localhost:5000/example/points.json', //時系列データエンドポイント
       labels: ['降水量','気温'] //時系列データのラベル
     },
     {
       type: 'duration',
-      url: 'http://agora.ex.nii.ac.jp/timeline/v1/jmaxml-alert/durations', //期間データエンドポイント
-      queries: {
-        id: '040000',
-        var: 'wind,rain'
-      },
+      url: 'http://localhost:5000/example/durations.json', //期間データエンドポイント
       labels: ['強風','大雨'] //期間データのラベル
     }
   ]
